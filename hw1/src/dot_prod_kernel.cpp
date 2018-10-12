@@ -12,15 +12,16 @@ void dot_prod_kernel(const float* a, const float* b, float* c, const int num_ele
 #pragma HLS interface s_axilite port = num_elems bundle = control
 #pragma HLS interface s_axilite port = return bundle = control
   assert(num_elems <= 4096);  // this helps HLS estimate the loop trip count
-
   int CHUNK_SIZE=1024;
   
   float local_a[num_elems];
-  #pragma HLS ARRAY_PARTITION variable=local_a block factor=CHUNK_SIZE dim=1
+  #pragma HLS ARRAY_PARTITION variable=local_a cyclic factor=CHUNK_SIZE dim=1
+  // #pragma HLS ARRAY_PARTITION variable=local_a block factor=CHUNK_SIZE dim=1
   // #pragma HLS ARRAY_PARTITION variable=local_a block factor=M/2 dim=1 // (2 elements everywhere)
   
   float local_b[num_elems];
-  #pragma HLS ARRAY_PARTITION variable=local_b block factor=CHUNK_SIZE dim=1
+  #pragma HLS ARRAY_PARTITION variable=local_b cyclic factor=CHUNK_SIZE dim=1
+  // #pragma HLS ARRAY_PARTITION variable=local_b block factor=CHUNK_SIZE dim=1
 
   // data transfer in scratchpad
   for(int i=0; i<num_elems; ++i){
@@ -30,29 +31,46 @@ void dot_prod_kernel(const float* a, const float* b, float* c, const int num_ele
   for(int i=0; i<num_elems; ++i){
     local_b[i]=b[i];
   }
-
   float local_result=0;
 
   int num_chunks = (int)num_elems/CHUNK_SIZE;
   float local_temp_result[num_chunks];
   #pragma HLS ARRAY_PARTITION variable=local_temp_result complete dim=1
 
+  for(int j=0; j<num_chunks; j++)
+  {
+    #pragma HLS UNROLL factor=num_chunks
+    for(int i=j*CHUNK_SIZE; i<(CHUNK_SIZE*(j+1)); ++i)
+    {
+      #pragma HLS PIPELINE II=2
+      local_temp_result[j] = local_temp_result[j] + local_a[i]*local_b[i];
+    }
+    local_result = local_result + local_temp_result[j]; // how to make this atomic? (or is it by default?)
+  }
+
+
+
+/*
   // #HLS INLINE OFF // not sure why is this required
-  for(int j=0; j<num_chunks; ++j)
+  for(int j=0; j<num_elems; j+=CHUNK_SIZE)
   {
     #pragma HLS UNROLL factor=num_chunks
     for(int i=j; i<(j+CHUNK_SIZE); ++i)
     {
       #pragma HLS PIPELINE II=2
-      local_temp_result[j] = local_temp_result[j] + a[i]*b[i];
+      local_temp_result[j] = local_temp_result[j] + local_a[i]*local_b[i];
     }
-    local_result += local_temp_result[j]; // how to make this atomic? (or is it by default?)
+    local_result = local_result + local_temp_result[j]; // how to make this atomic? (or is it by default?)
   }
+*/
 
-  // result = local_result;
+/*
+  for(int i=0; i<num_elems; ++i)
+  {
+    local_result = local_result + local_a[i]*local_b[i];
+  }
+*/
   c[0] = local_result;
-  // check_correctness(a[M], b[M], result);
-  // printf("The result is: %f\n",c[0]);
 }
 
 }  // extern "C"
