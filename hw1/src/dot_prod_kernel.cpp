@@ -15,8 +15,8 @@ void dot_prod_kernel(const float* a, const float* b, float* c, const int num_ele
   // int CHUNK_SIZE=1024;
   // int num_chunks = 4;
 
-  int CHUNK_SIZE=512;
-  int num_chunks = 8;
+  int CHUNK_SIZE=256;
+  int num_chunks = 16;
 
   // TODO: just to debug--fix later
   float local_a[4096];
@@ -45,13 +45,14 @@ void dot_prod_kernel(const float* a, const float* b, float* c, const int num_ele
     local_temp_result[j]=0;
   }
 
-  int stride=0;
+  // int stride=0;
   for(int i=0; i<CHUNK_SIZE; ++i){
     #pragma HLS PIPELINE
-    stride = i*num_chunks;
+    stride = i*num_chunks; // this dependency doesn't effect
     for(int j=0; j<num_chunks; ++j){
       #pragma HLS UNROLL factor=num_chunks
       local_temp_result[j] = local_temp_result[j] + local_a[stride+j]*local_b[stride+j];
+      // local_temp_result[j] = local_temp_result[j] + local_a[i*num_chunks+j]*local_b[i*num_chunks+j];
     }
   }
   for(int j=0; j<num_chunks; ++j)
