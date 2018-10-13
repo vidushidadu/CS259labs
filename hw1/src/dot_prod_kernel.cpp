@@ -1,6 +1,15 @@
 #include <assert.h>
 
 extern "C" {
+  
+void  local_dot_product(float *a, float *b, int start, int end, float &res)
+{
+  for(int i=start; i<end; ++i)
+  {
+    #pragma HLS PIPELINE II=2
+    res = res + a[i]*b[i];
+  }
+}
 
 void dot_prod_kernel(const float* a, const float* b, float* c, const int num_elems) {
 #pragma HLS interface m_axi port = a offset = slave bundle = gmem
@@ -12,24 +21,19 @@ void dot_prod_kernel(const float* a, const float* b, float* c, const int num_ele
 #pragma HLS interface s_axilite port = num_elems bundle = control
 #pragma HLS interface s_axilite port = return bundle = control
   assert(num_elems <= 4096);  // this helps HLS estimate the loop trip count
-  int CHUNK_SIZE=1024;
-  int num_chunks = 4;
-  // int num_chunks = (int)num_elems/CHUNK_SIZE;
-  
-  // float local_a[num_elems];
+  // int CHUNK_SIZE=1024;
+  // int num_chunks = 4;
+
+  int CHUNK_SIZE=512;
+  int num_chunks = 8;
+
   // TODO: just to debug--fix later
   float local_a[4096];
   #pragma HLS ARRAY_PARTITION variable=local_a block factor=num_chunks dim=1
-  // #pragma HLS ARRAY_PARTITION variable=local_a cyclic factor=CHUNK_SIZE dim=1
-  // #pragma HLS ARRAY_PARTITION variable=local_a block factor=CHUNK_SIZE dim=1
-  // #pragma HLS ARRAY_PARTITION variable=local_a block factor=M/2 dim=1 // (2 elements everywhere)
-  
-  // float local_b[num_elems];
+ 
   float local_b[4096];
   #pragma HLS ARRAY_PARTITION variable=local_b block factor=num_chunks dim=1
-  // #pragma HLS ARRAY_PARTITION variable=local_b cyclic factor=CHUNK_SIZE dim=1
-  // #pragma HLS ARRAY_PARTITION variable=local_b block factor=CHUNK_SIZE dim=1
-
+  
   // data transfer in scratchpad
   for(int i=0; i<num_elems; ++i){
     local_a[i]=a[i];
@@ -42,22 +46,34 @@ void dot_prod_kernel(const float* a, const float* b, float* c, const int num_ele
 
   float local_temp_result[num_chunks];
   #pragma HLS ARRAY_PARTITION variable=local_temp_result cyclic factor=num_chunks dim=1
-  // #pragma HLS ARRAY_PARTITION variable=local_temp_result complete dim=1
 
   for(int j=0; j<num_chunks; j++)
   {
     local_temp_result[j]=0;
   }
+
+  #pragma HLS INLINE OFF
   for(int j=0; j<num_chunks; j++)
   {
-    #pragma HLS UNROLL factor=num_chunks
+    // #pragma HLS UNROLL factor=num_chunks skip_exit_check
+    #pragma HLS UNROLL skip_exit_check
+    local_dot_product(local_a, local_b, j*CHUNK_SIZE,(CHUNK_SIZE*(j+1)),local_temp_result[j]);
+/*
     for(int i=j*CHUNK_SIZE; i<(CHUNK_SIZE*(j+1)); ++i)
     {
       #pragma HLS PIPELINE II=2
       local_temp_result[j] = local_temp_result[j] + local_a[i]*local_b[i];
     }
+   */
     local_result = local_result + local_temp_result[j]; // how to make this atomic? (or is it by default?)
   }
+/*
+  for(int j=0; j<num_chunks; ++j)
+  {
+    #pragma HLS PIPELINE II=2
+    local_result = local_result + local_temp_result[j]; // how to make this atomic? (or is it by default?)
+  }
+*/
   c[0] = local_result;
 
 /*
