@@ -6,7 +6,10 @@ const int burstLength = 256; // 1800 is not a power of 2
 const int numImages = 10;
 
 template <typename T>
-void load(const T* data_dram, const T* data_local){
+inline T Min(const T& a, const T& b) { return a < b ? a : b; }
+
+template <typename T>
+void load(const T* data_dram, T* data_local){
 #pragma HLS inline off
   for(int i=0; i<burstLength*numImages; ++i){
     data_local[i]=data_dram[i];
