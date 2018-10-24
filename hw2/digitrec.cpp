@@ -13,10 +13,10 @@ template <typename T>
 inline T Min(const T& a, const T& b) { return a < b ? a : b; }
 
 template <typename T>
-void load(const T* data_dram, T* data_local){
+void load(const T* data_dram, T* data_local, int num_elem){
 // cout << "CAME INSIDE LOAD\n";
 #pragma HLS inline off
-  for(int i=0; i<(burstLength*numImages); ++i){
+  for(int i=0; i<num_elem; ++i){
 #pragma HLS pipeline
     data_local[i]=data_dram[i];
   }
@@ -57,9 +57,11 @@ void compute(unsigned long test_image, unsigned long* train_images, unsigned cha
   diff: // Completely parallel
   for (int x1 = 0; x1 < local_num_elements; ++x1) {
     temp[x1] = train_images[x1] ^ test_image;
+cout << "Output of xor stage: " << temp[x1] << "\n";
   }
 
   // Compute the distance
+/*
 //opt: make it dis[i] and take writing loop out dis[local_num_elements]
   dis:
   for (int x2 = 0; x2 < local_num_elements; ++x2) {
@@ -69,8 +71,9 @@ void compute(unsigned long test_image, unsigned long* train_images, unsigned cha
     }
     temp[x2] = dis;
   }
+  update(temp, knn_mat);
+*/
 
-/*
 dis:
 unsigned long dis[local_num_elements];
 for(int i=0; i<local_num_elements; ++i){
@@ -81,11 +84,10 @@ for(int i=0; i<local_num_elements; ++i){
         dis[x2] += (temp[x2] & (1L << i)) >> i;
     }
   }
+cout << "Output of dis stage: " << dis[0] << "\n";
 
   update(dis, knn_mat);
-  */
 
-  update(temp, knn_mat);
 }
 
 void digitrec_kernel(
@@ -103,16 +105,18 @@ void digitrec_kernel(
 
   int local_num_elements = burstLength*numImages;
   unsigned long local_train_images[local_num_elements];
-  // unsigned char local_knn_mat[burstLength]; // size of this is 30
+  unsigned char local_knn_mat[30]; // size of this is 30 (updated after each image)
+  unsigned long local_test_image = test_image;
 
   // Initialize the knn set (jut copying?)
   init:
     for (int x = 0; x < 10; ++x) {
       for (int y = 0; y < 3; ++y) {
         // Note that the max distance is 49
-        knn_mat[(y + (x * 3))] = (unsigned char)50;
+        local_knn_mat[(y + (x * 3))] = (unsigned char)50;
       }
     }
+    // load(knn_mat, local_knn_mat, 30);
   // cout << "INIT DONE\n";
 
   const int kMinTripCount = 0;
@@ -122,12 +126,24 @@ outer_loop:
   for(int i=0; i<18000; i+=(burstLength*numImages), train_images+=(burstLength*numImages)){
 #pragma HLS loop_tripcount min = kMinTripCount max = kMaxTripCount
 // TODO: need condition for out of range (I think it's in the loops)
-    load(train_images, local_train_images);
-    // load(knn_mat, local_knn_mat); // can i make this as a template?
+    // load(knn_mat, local_knn_mat);
     local_num_elements = Min(18000-i,(burstLength*numImages));
-  cout << "INSIDE OUTER LOOP with i: " << i << " local num_elems: " << local_num_elements << "\n";
-    compute(test_image, local_train_images, knn_mat, local_num_elements);
+    load(train_images, local_train_images, local_num_elements);
+    // cout << "INSIDE OUTER LOOP with i: " << i << " local num_elems: " << local_num_elements << "\n";
+    compute(local_test_image, local_train_images, local_knn_mat, local_num_elements);
   }
+
+// final copying of result
+result:
+load(local_knn_mat, knn_mat, 30); // can i do store also here
+/*
+    for (int x = 0; x < 10; ++x) {
+      for (int y = 0; y < 3; ++y) {
+        knn_mat[(y + (x * 3))] = local_knn_mat[y + (x * 3))];
+      }
+    }
+*/
+
 }
 
 } // extern "C"
