@@ -1,8 +1,12 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include <iostream>
 
-const int burstLength = 256; // 1800 is not a power of 2
+using namespace std;
+
+// const int burstLength = 256; // 1800 is not a power of 2
+const int burstLength = 1800; // 1800 is not a power of 2
 const int numImages = 10;
 
 template <typename T>
@@ -10,25 +14,52 @@ inline T Min(const T& a, const T& b) { return a < b ? a : b; }
 
 template <typename T>
 void load(const T* data_dram, T* data_local){
+// cout << "CAME INSIDE LOAD\n";
 #pragma HLS inline off
-  for(int i=0; i<burstLength*numImages; ++i){
+  for(int i=0; i<(burstLength*numImages); ++i){
+#pragma HLS pipeline
     data_local[i]=data_dram[i];
   }
+// cout << "LOAD DONE\n";
 }
 
 extern "C" {
 
+// update knn set
+void update(unsigned long* temp, unsigned char* knn_mat) {
+  
+// this is max_id for any given x3 and y3 pair max_id[local_num_elements]; or single loop and replace x3 in knn to ceil(burstLength*numImages/x3')
+  update:
+  for (int x3 = 0; x3 < numImages; ++x3) {
+    for (int y3 = 0; y3 < burstLength; ++y3) {
+      unsigned long max_id = 0;
+      for (int i1 = 0; i1 < 3; ++i1) {
+        if (knn_mat[max_id + (x3 * 3)] < knn_mat[(i1 + (x3 * 3))]) {
+          max_id = i1;
+        }
+      }
+      if (temp[y3 + (x3*burstLength)] < knn_mat[max_id + (x3 * 3)]) {
+        knn_mat[max_id + (x3 * 3)] = temp[y3 + (x3*burstLength)];
+      }
+    }
+  }
+}
+
 // see this const issue
 // TODO: split it later according to the parallelization strategy
 void compute(unsigned long test_image, unsigned long* train_images, unsigned char* knn_mat, int local_num_elements){
+  
+// cout << "CAME TO COMPUTE, SHOULD BE 10 TIMES\n"; // see how can i reduce number of images 
+
   // Compute the difference using XOR
-  unsigned long temp[burstLength];
+  unsigned long temp[local_num_elements];
   diff:
   for (int x1 = 0; x1 < local_num_elements; ++x1) {
     temp[x1] = train_images[x1] ^ test_image;
   }
   
   // Compute the distance
+//opt: make it dis[i] and take writing loop out dis[local_num_elements]
   dis:
   for (int x2 = 0; x2 < local_num_elements; ++x2) {
     unsigned long dis = 0;
@@ -37,20 +68,7 @@ void compute(unsigned long test_image, unsigned long* train_images, unsigned cha
     }
     temp[x2] = dis;
   }
-  
-  // Update knn set
-  update:
-  for (int x3 = 0; x3 < local_num_elements; ++x3) {
-    unsigned long max_id = 0;
-    for (int i1 = 0; i1 < 3; ++i1) {
-      if (knn_mat[max_id + (x3 * 3)] < knn_mat[(i1 + (x3 * 3))]) {
-        max_id = i1;
-      }
-    }
-    if (temp[x3] < knn_mat[max_id + (x3 * 3)]) {
-      knn_mat[max_id + (x3 * 3)] = temp[x3];
-    }
-  }
+  update(temp, knn_mat);
 }
 
 void digitrec_kernel(
@@ -64,10 +82,11 @@ void digitrec_kernel(
 #pragma HLS interface s_axilite port=knn_mat bundle=control
 #pragma HLS interface s_axilite port=return bundle=control
 
+  // cout << "CAME INSIDE KERNEL\n";
 
-  unsigned long local_train_images[burstLength];
-  unsigned char local_knn_mat[burstLength];
-
+  int local_num_elements = burstLength*numImages;
+  unsigned long local_train_images[local_num_elements];
+  // unsigned char local_knn_mat[burstLength]; // size of this is 30
 
   // Initialize the knn set (jut copying?)
   init:
@@ -77,54 +96,21 @@ void digitrec_kernel(
         knn_mat[(y + (x * 3))] = (unsigned char)50;
       }
     }
-  int local_num_elements;
+  // cout << "INIT DONE\n";
+
+  const int kMinTripCount = 0;
+  const int kMaxTripCount = kMinTripCount + 18000/local_num_elements;
+
 outer_loop:
   for(int i=0; i<18000; i+=(burstLength*numImages), train_images+=(burstLength*numImages)){
-	// TODO: need condition for out of range
+#pragma HLS loop_tripcount min = kMinTripCount max = kMaxTripCount
+// TODO: need condition for out of range (I think it's in the loops)
     load(train_images, local_train_images);
-    load(knn_mat, local_knn_mat); // can i make this as a template?
-    // unsigned int a;
-    local_num_elements = Min((burstLength*numImages)-i,burstLength);
-	  compute(test_image, local_train_images, local_knn_mat, local_num_elements);
+    // load(knn_mat, local_knn_mat); // can i make this as a template?
+    local_num_elements = Min(18000-i,(burstLength*numImages));
+  cout << "INSIDE OUTER LOOP with i: " << i << " local num_elems: " << local_num_elements << "\n";
+    compute(test_image, local_train_images, knn_mat, local_num_elements);
   }
 }
 
 } // extern "C"
-
-/*
-unsigned long temp[burstLength];
-diff:
-for (int x1 = 0; x1 < numImages; ++x1) {
-  for (int y1 = 0; y1 < burstLength; ++y1) {
-    temp[(y1 + (x1 * burstLength))] = train_images[(y1 + (x1 * burstLength))] ^ test_image;
-  }
-}
-
-// Compute the distance
-dis:
-for (int x2 = 0; x2 < numImages; ++x2) {
-  for (int y2 = 0; y2 < burstLength; ++y2) {
-    unsigned long dis = 0;
-    for (int i = 0; i < 49; ++i) {
-      dis += (temp[(y2 + (x2 * burstLength))] & (1L << i)) >> i;
-    }
-    temp[(y2 + (x2 * burstLength))] = dis;
-  }
-}
-
-// Update knn set
-update:
-for (int x3 = 0; x3 < numImages; ++x3) {
-  for (int y3 = 0; y3 < burstLength; ++y3) {
-    unsigned long max_id = 0;
-    for (int i1 = 0; i1 < 3; ++i1) {
-      if (knn_mat[max_id + (x3 * 3)] < knn_mat[(i1 + (x3 * 3))]) {
-        max_id = i1;
-      }
-    }
-    if (temp[y3 + (x3 * burstLength)] < knn_mat[max_id + (x3 * 3)]) {
-      knn_mat[max_id + (x3 * 3)] = temp[y3 + (x3 * burstLength)];
-    }
-  }
-}
-*/
