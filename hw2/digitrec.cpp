@@ -44,6 +44,7 @@ void update(unsigned long* temp, unsigned char* knn_mat) {
       }
     }
   }
+
 }
 
 // see this const issue
@@ -56,24 +57,12 @@ void compute(unsigned long test_image, unsigned long* train_images, unsigned cha
   unsigned long temp[local_num_elements];
   diff: // Completely parallel
   for (int x1 = 0; x1 < local_num_elements; ++x1) {
+#pragma HLS UNROLL
     temp[x1] = train_images[x1] ^ test_image;
-cout << "Output of xor stage: " << temp[x1] << "\n";
+// cout << "Output of xor stage: " << temp[x1] << "\n";
   }
 
   // Compute the distance
-/*
-//opt: make it dis[i] and take writing loop out dis[local_num_elements]
-  dis:
-  for (int x2 = 0; x2 < local_num_elements; ++x2) {
-    unsigned long dis = 0;
-    for (int i = 0; i < 49; ++i) {
-      dis += (temp[x2] & (1L << i)) >> i;
-    }
-    temp[x2] = dis;
-  }
-  update(temp, knn_mat);
-*/
-
 dis:
 unsigned long dis[local_num_elements];
 for(int i=0; i<local_num_elements; ++i){
@@ -84,8 +73,6 @@ for(int i=0; i<local_num_elements; ++i){
         dis[x2] += (temp[x2] & (1L << i)) >> i;
     }
   }
-cout << "Output of dis stage: " << dis[0] << "\n";
-
   update(dis, knn_mat);
 
 }
@@ -101,9 +88,8 @@ void digitrec_kernel(
 #pragma HLS interface s_axilite port=knn_mat bundle=control
 #pragma HLS interface s_axilite port=return bundle=control
 
-  // cout << "CAME INSIDE KERNEL\n";
-
   int local_num_elements = burstLength*numImages;
+  // TODO: try their mapping
   unsigned long local_train_images[local_num_elements];
   unsigned char local_knn_mat[30]; // size of this is 30 (updated after each image)
   unsigned long local_test_image = test_image;
@@ -116,33 +102,21 @@ void digitrec_kernel(
         local_knn_mat[(y + (x * 3))] = (unsigned char)50;
       }
     }
-    // load(knn_mat, local_knn_mat, 30);
-  // cout << "INIT DONE\n";
 
   const int kMinTripCount = 0;
   const int kMaxTripCount = kMinTripCount + 18000/local_num_elements;
 
 outer_loop:
-  for(int i=0; i<18000; i+=(burstLength*numImages), train_images+=(burstLength*numImages)){
+  for(int i=0; i<18000; i+=(burstLength*numImages), train_images+=(burstLength*numImages), knn_mat+=3){
 #pragma HLS loop_tripcount min = kMinTripCount max = kMaxTripCount
 // TODO: need condition for out of range (I think it's in the loops)
-    // load(knn_mat, local_knn_mat);
     local_num_elements = Min(18000-i,(burstLength*numImages));
     load(train_images, local_train_images, local_num_elements);
     // cout << "INSIDE OUTER LOOP with i: " << i << " local num_elems: " << local_num_elements << "\n";
     compute(local_test_image, local_train_images, local_knn_mat, local_num_elements);
-  }
+    load(local_knn_mat, knn_mat, 3);
 
-// final copying of result
-result:
-load(local_knn_mat, knn_mat, 30); // can i do store also here
-/*
-    for (int x = 0; x < 10; ++x) {
-      for (int y = 0; y < 3; ++y) {
-        knn_mat[(y + (x * 3))] = local_knn_mat[y + (x * 3))];
-      }
-    }
-*/
+  }
 
 }
 
