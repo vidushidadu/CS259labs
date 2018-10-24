@@ -7,7 +7,7 @@ using namespace std;
 
 // const int burstLength = 256; // 1800 is not a power of 2
 const int burstLength = 1800; // 1800 is not a power of 2
-const int numImages = 10;
+const int numImages = 1;
 
 template <typename T>
 inline T Min(const T& a, const T& b) { return a < b ? a : b; }
@@ -27,8 +27,9 @@ extern "C" {
 
 // update knn set
 void update(unsigned long* temp, unsigned char* knn_mat) {
-  
+
 // this is max_id for any given x3 and y3 pair max_id[local_num_elements]; or single loop and replace x3 in knn to ceil(burstLength*numImages/x3')
+// this is serial for image size (1800) and parallel for num_images
   update:
   for (int x3 = 0; x3 < numImages; ++x3) {
     for (int y3 = 0; y3 < burstLength; ++y3) {
@@ -48,16 +49,16 @@ void update(unsigned long* temp, unsigned char* knn_mat) {
 // see this const issue
 // TODO: split it later according to the parallelization strategy
 void compute(unsigned long test_image, unsigned long* train_images, unsigned char* knn_mat, int local_num_elements){
-  
-// cout << "CAME TO COMPUTE, SHOULD BE 10 TIMES\n"; // see how can i reduce number of images 
+
+// cout << "CAME TO COMPUTE, SHOULD BE 10 TIMES\n"; // see how can i reduce number of images
 
   // Compute the difference using XOR
   unsigned long temp[local_num_elements];
-  diff:
+  diff: // Completely parallel
   for (int x1 = 0; x1 < local_num_elements; ++x1) {
     temp[x1] = train_images[x1] ^ test_image;
   }
-  
+
   // Compute the distance
 //opt: make it dis[i] and take writing loop out dis[local_num_elements]
   dis:
@@ -68,6 +69,22 @@ void compute(unsigned long test_image, unsigned long* train_images, unsigned cha
     }
     temp[x2] = dis;
   }
+
+/*
+dis:
+unsigned long dis[local_num_elements];
+for(int i=0; i<local_num_elements; ++i){
+  dis[i]=0;
+}
+    for (int i = 0; i < 49; ++i) {
+      for (int x2 = 0; x2 < local_num_elements; ++x2) {
+        dis[x2] += (temp[x2] & (1L << i)) >> i;
+    }
+  }
+
+  update(dis, knn_mat);
+  */
+
   update(temp, knn_mat);
 }
 
