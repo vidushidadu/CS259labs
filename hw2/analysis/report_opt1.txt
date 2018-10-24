@@ -1,0 +1,48 @@
+===============================================================================
+Version:    xocc v2018.2.op (64-bit)
+Build:      SW Build 2258646 on Thu Jun 14 20:02:38 MDT 2018
+Copyright:  Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+Created:    Wed Oct 24 06:10:38 2018
+===============================================================================
+
+-------------------------------------------------------------------------------
+Design Name:             digitrec_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0
+Target Device:           xilinx:aws-vu9p-f1-04261818:dynamic:5.0
+Target Clock:            250.000000MHz
+Total number of kernels: 1
+-------------------------------------------------------------------------------
+
+Kernel Summary
+Kernel Name      Type  Target              OpenCL Library                                                  Compute Units
+---------------  ----  ------------------  --------------------------------------------------------------  -------------
+digitrec_kernel  c     fpga0:OCL_REGION_0  digitrec_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0  1
+
+
+-------------------------------------------------------------------------------
+OpenCL Binary:     digitrec_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0
+Kernels mapped to: clc_region
+
+Timing Information (MHz)
+Compute Unit       Kernel Name      Module Name           Target Frequency  Estimated Frequency
+-----------------  ---------------  --------------------  ----------------  -------------------
+digitrec_kernel_1  digitrec_kernel  load_unsigned_long_s  250               342.465759
+digitrec_kernel_1  digitrec_kernel  compute               250               383.877167
+digitrec_kernel_1  digitrec_kernel  load_unsigned_char_s  250               342.465759
+digitrec_kernel_1  digitrec_kernel  digitrec_kernel       250               342.465759
+
+Latency Information (clock cycles)
+Compute Unit       Kernel Name      Module Name           Start Interval    Best Case  Avg Case  Worst Case
+-----------------  ---------------  --------------------  ----------------  ---------  --------  ----------
+digitrec_kernel_1  digitrec_kernel  load_unsigned_long_s  11 ~ 1810         11         undef     1810
+digitrec_kernel_1  digitrec_kernel  compute               16356 ~ 286206    16356      undef     286206
+digitrec_kernel_1  digitrec_kernel  load_unsigned_char_s  11                11         11        11
+digitrec_kernel_1  digitrec_kernel  digitrec_kernel       163874 ~ 2880364  163873     undef     2880363
+
+Area Information
+Compute Unit       Kernel Name      Module Name           FF    LUT   DSP  BRAM
+-----------------  ---------------  --------------------  ----  ----  ---  ----
+digitrec_kernel_1  digitrec_kernel  load_unsigned_long_s  175   221   0    0
+digitrec_kernel_1  digitrec_kernel  compute               314   1026  1    16
+digitrec_kernel_1  digitrec_kernel  load_unsigned_char_s  89    212   0    0
+digitrec_kernel_1  digitrec_kernel  digitrec_kernel       2186  3728  1    29
+-------------------------------------------------------------------------------

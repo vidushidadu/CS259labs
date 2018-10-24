@@ -30,6 +30,7 @@ void update(unsigned long* temp, unsigned char* knn_mat) {
 
 // this is max_id for any given x3 and y3 pair max_id[local_num_elements]; or single loop and replace x3 in knn to ceil(burstLength*numImages/x3')
 // this is serial for image size (1800) and parallel for num_images
+// TODO: deal with non-round values (add an if condition)
   update:
   for (int x3 = 0; x3 < numImages; ++x3) {
     for (int y3 = 0; y3 < burstLength; ++y3) {
@@ -54,7 +55,7 @@ void compute(unsigned long test_image, unsigned long* train_images, unsigned cha
 // cout << "CAME TO COMPUTE, SHOULD BE 10 TIMES\n"; // see how can i reduce number of images
 
   // Compute the difference using XOR
-  unsigned long temp[local_num_elements];
+  unsigned long temp[(numImages*burstLength)];
   diff: // Completely parallel
   for (int x1 = 0; x1 < local_num_elements; ++x1) {
 #pragma HLS UNROLL
@@ -64,7 +65,7 @@ void compute(unsigned long test_image, unsigned long* train_images, unsigned cha
 
   // Compute the distance
 dis:
-unsigned long dis[local_num_elements];
+unsigned long dis[(numImages*burstLength)];
 for(int i=0; i<local_num_elements; ++i){
   dis[i]=0;
 }
@@ -73,7 +74,7 @@ for(int i=0; i<local_num_elements; ++i){
         dis[x2] += (temp[x2] & (1L << i)) >> i;
     }
   }
-  update(dis, knn_mat);
+  update(dis, knn_mat); // pass the size here
 
 }
 

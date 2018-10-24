@@ -1,0 +1,191 @@
+
+****** Vivado(TM) HLS - High-Level Synthesis from C, C++ and SystemC v2018.2_AR71275_op (64-bit)
+  **** SW Build 2258646 on Thu Jun 14 20:02:38 MDT 2018
+  **** IP Build 2256618 on Thu Jun 14 22:10:49 MDT 2018
+    ** Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+
+source /opt/Xilinx/Vivado/2018.2.op2258646/scripts/vivado_hls/hls.tcl -notrace
+INFO: [HLS 200-10] Running '/opt/Xilinx/Vivado/2018.2.op2258646/bin/unwrapped/lnx64.o/vivado_hls'
+INFO: [HLS 200-10] For user 'centos' on host 'ip-172-31-36-73.ec2.internal' (Linux_x86_64 version 3.10.0-862.11.6.el7.x86_64) on Wed Oct 24 06:10:09 UTC 2018
+INFO: [HLS 200-10] On os "CentOS Linux release 7.5.1804 (Core) "
+INFO: [HLS 200-10] In directory '/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/_x/digitrec_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0/digitrec_kernel'
+INFO: [HLS 200-10] Creating and opening project '/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/_x/digitrec_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0/digitrec_kernel/digitrec_kernel'.
+INFO: [HLS 200-10] Adding design file '/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp' to the project
+INFO: [HLS 200-10] Creating and opening solution '/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/_x/digitrec_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0/digitrec_kernel/digitrec_kernel/solution'.
+INFO: [HLS 200-10] Setting target device to 'xcvu9p-flgb2104-2-i'
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 4ns.
+INFO: [HLS 200-435] Setting 'config_sdx -optimization_level' configuration: config_rtl -vivado_phys_opt=none
+INFO: [HLS 200-435] Setting 'config_sdx -optimization_level' configuration: config_bind -effort=medium
+INFO: [HLS 200-435] Setting 'config_sdx -optimization_level' configuration: config_schedule -effort=medium
+INFO: [HLS 200-435] Setting 'config_sdx -target' configuration: config_compile -pipeline_loops=64
+INFO: [XFORM 203-1171] Pipeline the innermost loop with trip count more than 64 or its parent loop when its trip count is less than or equal 64.
+INFO: [HLS 200-435] Setting 'config_sdx -target' configuration: config_compile -name_max_length=256
+INFO: [XFORM 203-1161] The maximum of name length is set into 256.
+INFO: [HLS 200-435] Setting 'config_sdx -target' configuration: config_schedule -relax_ii_for_timing=1
+INFO: [HLS 200-435] Setting 'config_sdx -target' configuration: config_rtl -register_reset_num=3
+INFO: [HLS 200-435] Setting 'config_sdx -target' configuration: config_rtl -auto_prefix=1
+INFO: [HLS 200-435] Setting 'config_sdx -target' configuration: config_rtl -enable_maxiConservative=1
+INFO: [HLS 200-435] Setting 'config_sdx -target' configuration: set_clock_uncertainty 27%
+INFO: [SYN 201-201] Setting up clock 'default' with an uncertainty of 1.08ns.
+INFO: [SYN 201-201] Setting up clock 'default' with an uncertainty of 1.08ns.
+INFO: [SCHED 204-61] Option 'relax_ii_for_timing' is enabled, will increase II to preserve clock frequency constraints.
+INFO: [HLS 200-10] Analyzing design file '/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp' ... 
+INFO: [HLS 200-111] Finished Linking Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 467.992 ; gain = 12.172 ; free physical = 28055 ; free virtual = 65277
+INFO: [HLS 200-111] Finished Checking Pragmas Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 467.992 ; gain = 12.172 ; free physical = 28055 ; free virtual = 65277
+INFO: [HLS 200-10] Starting code transformations ...
+INFO: [HLS 200-111] Finished Standard Transforms Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 468.102 ; gain = 12.281 ; free physical = 28049 ; free virtual = 65271
+INFO: [HLS 200-10] Checking synthesizability ...
+INFO: [XFORM 203-602] Inlining function 'Min<int>' into 'digitrec_kernel' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:114) automatically.
+INFO: [HLS 200-111] Finished Checking Synthesizability Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 468.113 ; gain = 12.293 ; free physical = 28046 ; free virtual = 65269
+INFO: [XFORM 203-510] Pipelining loop 'Loop-2.1' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:36) in function 'update' automatically.
+INFO: [XFORM 203-510] Pipelining loop 'Loop-3' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:69) in function 'compute' automatically.
+INFO: [XFORM 203-510] Pipelining loop 'Loop-4.1' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:73) in function 'compute' automatically.
+INFO: [XFORM 203-510] Pipelining loop 'Loop-2.1' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:101) in function 'digitrec_kernel' automatically.
+INFO: [XFORM 203-502] Unrolling small iteration loop 'update' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:35) in function 'update' automatically.
+WARNING: [XFORM 203-561] Updating loop lower bound from 0 to 10 for loop 'outer_loop' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:112:1) in function 'digitrec_kernel'.
+WARNING: [XFORM 203-503] Cannot unroll loop 'diff' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:60) in function 'compute': cannot completely unroll a loop with a variable trip count.
+INFO: [XFORM 203-501] Unrolling loop 'update' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:35) in function 'update' completely.
+INFO: [XFORM 203-602] Inlining function 'Min<int>' into 'digitrec_kernel' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:114) automatically.
+INFO: [XFORM 203-602] Inlining function 'update' into 'compute' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:77) automatically.
+INFO: [HLS 200-111] Finished Pre-synthesis Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 598.949 ; gain = 143.129 ; free physical = 28031 ; free virtual = 65254
+INFO: [XFORM 203-541] Flattening a loop nest 'init' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:100:35) in function 'digitrec_kernel'.
+INFO: [XFORM 203-541] Flattening a loop nest 'Loop-3' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:72:19) in function 'compute'.
+WARNING: [XFORM 203-542] Cannot flatten a loop nest 'Loop-4' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:36:20) in function 'compute' : 
+
+the outer loop is not a perfect loop because there is nontrivial logic before entering the inner loop.
+INFO: [XFORM 203-811] Inferring multiple bus burst write of a total cumulative length 3 on port 'data_local' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:21:2). These data requests might be further partitioned to multiple requests during RTL generation, based on max_read_burst_length or max_write_burst_length settings.
+INFO: [XFORM 203-811] Inferring multiple bus burst read of variable length on port 'data_dram' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:21:2). These data requests might be further partitioned to multiple requests during RTL generation, based on max_read_burst_length or max_write_burst_length settings.
+INFO: [HLS 200-111] Finished Architecture Synthesis Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 598.949 ; gain = 143.129 ; free physical = 28003 ; free virtual = 65227
+INFO: [HLS 200-10] Starting hardware synthesis ...
+INFO: [HLS 200-10] Synthesizing 'digitrec_kernel' ...
+WARNING: [SYN 201-103] Legalizing function name 'load<unsigned long>' to 'load_unsigned_long_s'.
+WARNING: [SYN 201-103] Legalizing function name 'load<unsigned char>' to 'load_unsigned_char_s'.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'load_unsigned_long_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'Loop 1'.
+INFO: [SCHED 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111]  Elapsed time: 9.29 seconds; current allocated memory: 100.509 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111]  Elapsed time: 0.05 seconds; current allocated memory: 100.658 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'compute' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'Loop 2'.
+INFO: [SCHED 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [SCHED 204-61] Pipelining loop 'Loop 3'.
+WARNING: [SCHED 204-68] Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1)
+   between 'store' operation (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:74) of variable 'tmp_6', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:74 on array 'dis', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:68 and 'load' operation ('dis_load', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:74) on array 'dis', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:68.
+WARNING: [SCHED 204-68] Unable to enforce a carried dependence constraint (II = 2, distance = 1, offset = 1)
+   between 'store' operation (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:74) of variable 'tmp_6', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:74 on array 'dis', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:68 and 'load' operation ('dis_load', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:74) on array 'dis', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:68.
+INFO: [SCHED 204-61] Pipelining result : Target II = 1, Final II = 3, Depth = 3.
+WARNING: [SCHED 204-65] Unable to satisfy pipeline directive: Loop contains subloop(s) not being unrolled or flattened.
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111]  Elapsed time: 0.1 seconds; current allocated memory: 101.210 MB.
+WARNING: [HLS 200-433] Loop - Loop 2 has an initiation interval that is equal to the pipeline depth (1) - this results in an unpipelined loop.
+WARNING: [HLS 200-433] Loop - Loop 3 has an initiation interval that is equal to the pipeline depth (3) - this results in an unpipelined loop.
+INFO: [HLS 200-434] Only 2 loops out of a total 5 loops have been pipelined in this design.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111]  Elapsed time: 0.07 seconds; current allocated memory: 101.549 MB.
+WARNING: [HLS 200-433] Loop - Loop 2 has an initiation interval that is equal to the pipeline depth (1) - this results in an unpipelined loop.
+WARNING: [HLS 200-433] Loop - Loop 3 has an initiation interval that is equal to the pipeline depth (3) - this results in an unpipelined loop.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'load_unsigned_char_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'Loop 1'.
+INFO: [SCHED 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 3.
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111]  Elapsed time: 0.13 seconds; current allocated memory: 101.731 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111]  Elapsed time: 0.05 seconds; current allocated memory: 101.852 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'digitrec_kernel' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'init_L'.
+INFO: [SCHED 204-61] Pipelining result : Target II = 1, Final II = 1, Depth = 1.
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111]  Elapsed time: 0.07 seconds; current allocated memory: 102.143 MB.
+WARNING: [HLS 200-433] Loop - init_L has an initiation interval that is equal to the pipeline depth (1) - this results in an unpipelined loop.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111]  Elapsed time: 0.13 seconds; current allocated memory: 102.425 MB.
+WARNING: [HLS 200-433] Loop - init_L has an initiation interval that is equal to the pipeline depth (1) - this results in an unpipelined loop.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'load_unsigned_long_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'load_unsigned_long_s'.
+INFO: [HLS 200-111]  Elapsed time: 0.16 seconds; current allocated memory: 102.942 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'compute' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Generating core module 'digitrec_kernel_mul_mul_11ns_7ns_17_1_1': 1 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'compute'.
+INFO: [HLS 200-111]  Elapsed time: 0.09 seconds; current allocated memory: 104.058 MB.
+WARNING: [HLS 200-433] Loop - Loop 2 has an initiation interval that is equal to the pipeline depth (1) - this results in an unpipelined loop.
+WARNING: [HLS 200-433] Loop - Loop 3 has an initiation interval that is equal to the pipeline depth (3) - this results in an unpipelined loop.
+WARNING: [HLS 200-433] Loop - Loop 2 has an initiation interval that is equal to the pipeline depth (1) - this results in an unpipelined loop.
+WARNING: [HLS 200-433] Loop - Loop 3 has an initiation interval that is equal to the pipeline depth (3) - this results in an unpipelined loop.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'load_unsigned_char_s' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Finished creating RTL model for 'load_unsigned_char_s'.
+INFO: [HLS 200-111]  Elapsed time: 0.28 seconds; current allocated memory: 105.978 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'digitrec_kernel' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-500] Setting interface mode on port 'digitrec_kernel/gmem' to 'm_axi'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'digitrec_kernel/gmem2' to 'm_axi'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'digitrec_kernel/test_image' to 's_axilite & ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'digitrec_kernel/train_images' to 's_axilite & ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'digitrec_kernel/knn_mat' to 's_axilite & ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on function 'digitrec_kernel' to 's_axilite & ap_ctrl_hs'.
+INFO: [RTGEN 206-100] Bundling port 'return', 'test_image', 'train_images' to AXI-Lite port control.
+INFO: [RTGEN 206-100] Finished creating RTL model for 'digitrec_kernel'.
+INFO: [HLS 200-111]  Elapsed time: 0.13 seconds; current allocated memory: 107.858 MB.
+WARNING: [HLS 200-433] Loop - init_L has an initiation interval that is equal to the pipeline depth (1) - this results in an unpipelined loop.
+WARNING: [HLS 200-433] Loop - init_L has an initiation interval that is equal to the pipeline depth (1) - this results in an unpipelined loop.
+WARNING: [HLS 200-433] Loop - init_L has an initiation interval that is equal to the pipeline depth (1) - this results in an unpipelined loop.
+INFO: [RTMG 210-278] Implementing memory 'digitrec_kernel_compute_temp_ram (RAM)' using block RAMs.
+INFO: [RTMG 210-278] Implementing memory 'digitrec_kernel_digitrec_kernel_local_knn_mat_ram (RAM)' using block RAMs.
+INFO: [HLS 200-111] Finished generating all RTL models Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 598.949 ; gain = 143.129 ; free physical = 27981 ; free virtual = 65211
+INFO: [SYSC 207-301] Generating SystemC RTL for digitrec_kernel with prefix digitrec_kernel_.
+INFO: [VHDL 208-304] Generating VHDL RTL for digitrec_kernel with prefix digitrec_kernel_.
+INFO: [VLOG 209-307] Generating Verilog RTL for digitrec_kernel with prefix digitrec_kernel_.
+INFO: [IMPL 213-8] Exporting RTL as a Vivado IP.
+
+****** Vivado v2018.2_AR71275_op (64-bit)
+  **** SW Build 2258646 on Thu Jun 14 20:02:38 MDT 2018
+  **** IP Build 2256618 on Thu Jun 14 22:10:49 MDT 2018
+    ** Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+
+source run_ippack.tcl -notrace
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/opt/Xilinx/Vivado/2018.2.op2258646/data/ip'.
+Add Instance compute grp_compute_fu_198 198
+Add Instance load_unsigned_long_s grp_load_unsigned_long_s_fu_206 206
+Add Instance load_unsigned_char_s grp_load_unsigned_char_s_fu_217 217
+INFO: [Common 17-206] Exiting Vivado at Wed Oct 24 06:10:38 2018...
+Vivado HLS completed successfully
+INFO: [HLS 200-112] Total elapsed time: 29.03 seconds; peak allocated memory: 107.858 MB.
+INFO: [Common 17-206] Exiting vivado_hls at Wed Oct 24 06:10:38 2018...
