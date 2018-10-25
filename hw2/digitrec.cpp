@@ -10,18 +10,20 @@ const int burstLength = 1800; // 1800 is not a power of 2
 const int numImages = 1;
 const int burstSize = burstLength*numImages;
 const int num_chunks = 8; // current unroll factor?
+const int num_elements = 18000;
 
 template <typename T>
 inline T Min(const T& a, const T& b) { return a < b ? a : b; }
 
 //  These data requests might be further partitioned to multiple requests during RTL generation, based on max_read_burst_length or max_write_burst_length settings.
 template <typename T>
-void load(const T* data_dram, T* data_local, int num_elem){
-
+void load(bool enable, const T* data_dram, T* data_local, int num_elem){
 #pragma HLS inline off
-  for(int i=0; i<num_elem; ++i){
-#pragma HLS pipeline
-    data_local[i]=data_dram[i];
+  if(enable){
+    for(int i=0; i<num_elem; ++i){
+      #pragma HLS pipeline
+      data_local[i]=data_dram[i];
+    }
   }
 }
 
@@ -35,11 +37,11 @@ void update(unsigned long* temp, unsigned char* knn_mat) {
 // TODO: deal with non-round values (add an if condition)
   update: // unrolled by itself?
   for (int x3 = 0; x3 < numImages; ++x3) {
-#pragma HLS loop_tripcount min = 0 max = numImages
-// #pragma HLS UNROLL
+    #pragma HLS loop_tripcount min = 0 max = numImages
+    // #pragma HLS UNROLL
     for (int y3 = 0; y3 < burstLength; ++y3) { // cannot flatten this or pipeline this--seems reasonable
-#pragma HLS loop_tripcount min = 0 max = burstLength
-#pragma HLS PIPELINE
+      #pragma HLS loop_tripcount min = 0 max = burstLength
+      #pragma HLS PIPELINE
       unsigned long max_id = 0;
       for (int i1 = 0; i1 < 3; ++i1) {
         if (knn_mat[max_id + (x3 * 3)] < knn_mat[(i1 + (x3 * 3))]) {
@@ -51,55 +53,53 @@ void update(unsigned long* temp, unsigned char* knn_mat) {
       }
     }
   }
-
 }
 
 void print(unsigned long* a, int num_elem){
   for(int i=0; i< num_elem; ++i){
     cout << a[i] << endl;
-  } 
+  }
 }
 
 // see this const issue
 // TODO: split it later according to the parallelization strategy
-void compute(unsigned long test_image, unsigned long* train_images, unsigned char* knn_mat, int local_num_elements){
-
-// cout << "CAME TO COMPUTE, SHOULD BE 10 TIMES\n"; // see how can i reduce number of images
-
-  // Compute the difference using XOR
-  unsigned long local_temp[burstSize];
-#pragma HLS ARRAY_PARTITION variable=local_temp cyclic factor=num_chunks dim=1
-  diff: // Completely parallel
-  for (int x1 = 0; x1 < local_num_elements; ++x1) {
-    // it said can't unroll with variable trip count
-#pragma HLS loop_tripcount min = 0 max = burstSize
-#pragma HLS UNROLL factor=num_chunks
-    local_temp[x1] = train_images[x1] ^ test_image;
-  }
+void compute(bool enable, unsigned long test_image, unsigned long* train_images, unsigned char* knn_mat, int local_num_elements){
+  #pragma HLS inline off
+  // cout << "CAME TO COMPUTE, SHOULD BE 10 TIMES\n"; // see how can i reduce number of images
+  if(enable){
+    // Compute the difference using XOR
+    unsigned long local_temp[burstSize];
+    #pragma HLS ARRAY_PARTITION variable=local_temp cyclic factor=num_chunks dim=1
+    diff: // Completely parallel
+    for (int x1 = 0; x1 < local_num_elements; ++x1) {
+      // it said can't unroll with variable trip count
+      #pragma HLS loop_tripcount min = 0 max = burstSize
+      #pragma HLS UNROLL factor=num_chunks
+      local_temp[x1] = train_images[x1] ^ test_image;
+    }
 
   // Compute the distance
-dis_init:
-  unsigned long dis[burstSize];
-#pragma HLS ARRAY_PARTITION variable=dis cyclic factor=num_chunks dim=1
-  
-  for(int i=0; i<local_num_elements; ++i){
-#pragma HLS loop_tripcount min = 0 max = burstSize
-  dis[i]=0;
-}
+    dis_init:
+    unsigned long dis[burstSize];
+    #pragma HLS ARRAY_PARTITION variable=dis cyclic factor=num_chunks dim=1
 
-dis:
-    for (int i = 0; i < 49; ++i) {
-#pragma HLS loop_tripcount min = 0 max = 49
-#pragma HLS PIPELINE
-      for (int x2 = 0; x2 < local_num_elements; ++x2) {
-#pragma HLS loop_tripcount min = 0 max = burstSize
-#pragma HLS UNROLL factor=num_chunks
-        dis[x2] = dis[x2] + ((local_temp[x2] & (1L << i)) >> i);
+    for(int i=0; i<local_num_elements; ++i){
+      #pragma HLS loop_tripcount min = 0 max = burstSize
+      dis[i]=0;
     }
-  }
 
-
-  update(dis, knn_mat); // pass the size here
+    dis:
+      for (int i = 0; i < 49; ++i) {
+        #pragma HLS loop_tripcount min = 0 max = 49
+        #pragma HLS PIPELINE
+        for (int x2 = 0; x2 < local_num_elements; ++x2) {
+          #pragma HLS loop_tripcount min = 0 max = burstSize
+          #pragma HLS UNROLL factor=num_chunks
+          dis[x2] = dis[x2] + ((local_temp[x2] & (1L << i)) >> i);
+      }
+    }
+    update(dis, knn_mat); // pass the size here
+}
 
 }
 
@@ -116,20 +116,22 @@ void digitrec_kernel(
 
   int local_num_elements = burstLength*numImages;
   // TODO: try their mapping
-  unsigned long local_train_images[local_num_elements];
-#pragma HLS ARRAY_PARTITION variable=local_train_images cyclic factor=num_chunks dim=1
-  unsigned char local_knn_mat[30]; // size of this is 30 (updated after each image)
-#pragma HLS ARRAY_PARTITION variable=local_knn_mat cyclic factor=num_chunks dim=1
+  unsigned long local_train_images_0[local_num_elements];
+#pragma HLS ARRAY_PARTITION variable=local_train_images_0 cyclic factor=num_chunks dim=1
+
+unsigned long local_train_images_1[local_num_elements];
+#pragma HLS ARRAY_PARTITION variable=local_train_images_1 cyclic factor=num_chunks dim=1
+
+  unsigned char local_knn_mat[3]; // size of this is 30 (updated after each image)
+#pragma HLS ARRAY_PARTITION variable=local_knn_mat cyclic factor=3 dim=1
   unsigned long local_test_image = test_image;
 // #pragma HLS ARRAY_PARTITION variable=local_test_image cyclic factor=num_chunks dim=1
 
   // Initialize the knn set (jut copying?)
   init:
-    for (int x = 0; x < 10; ++x) {
-      for (int y = 0; y < 3; ++y) {
-        // Note that the max distance is 49
-        local_knn_mat[(y + (x * 3))] = (unsigned char)50;
-      }
+  for (int y = 0; y < 3; ++y) {
+    // Note that the max distance is 49
+    local_knn_mat[y] = (unsigned char)50;
     }
 
   const int kMinTripCount = 0;
@@ -137,14 +139,26 @@ void digitrec_kernel(
 
 outer_loop:
 // the outer loop is not a perfect loop because there is nontrivial logic before entering the inner loop.
-  for(int i=0; i<18000; i+=(burstLength*numImages), train_images+=(burstLength*numImages), knn_mat+=3){
+  for(int i=0; i<num_elements+burstSize; i+=burstSize, train_images+=burstSize, knn_mat+=3){
 #pragma HLS loop_tripcount min = kMinTripCount max = kMaxTripCount
 // TODO: need condition for out of range (I think it's in the loops)
-    local_num_elements = Min(18000-i,(burstLength*numImages));
+    local_num_elements = Min(num_elements+burstSize-i,(burstLength*numImages));
+
+    if((i/burstSize) % 2) {
+      load(i < num_elements, train_images, local_train_images_0, local_num_elements);
+      compute(i > 0, local_test_image, local_train_images_1, local_knn_mat, local_num_elements);
+      load(i > 0, local_knn_mat, knn_mat, 3); // store
+    } else {
+      load(i < num_elements, train_images, local_train_images_1, local_num_elements);
+      compute(i > 0, local_test_image, local_train_images_0, local_knn_mat, local_num_elements);
+      load(i > 0, local_knn_mat, knn_mat, 3); // store
+    }
+    /*
     load(train_images, local_train_images, local_num_elements);
-    // cout << "INSIDE OUTER LOOP with i: " << i << " local num_elems: " << local_num_elements << "\n";
     compute(local_test_image, local_train_images, local_knn_mat, local_num_elements);
-    load(local_knn_mat, knn_mat, 3);
+    load(local_knn_mat, knn_mat, 3); // store
+    */
+
 
   }
 
