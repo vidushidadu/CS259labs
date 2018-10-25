@@ -11,6 +11,7 @@ const int numImages = 1;
 const int burstSize = burstLength*numImages;
 const int num_chunks = 8; // current unroll factor?
 const int num_elements = 18000;
+const int double_buf_pipe = 3;
 
 template <typename T>
 inline T Min(const T& a, const T& b) { return a < b ? a : b; }
@@ -27,8 +28,16 @@ void load(bool enable, const T* data_dram, T* data_local, int num_elem){
   }
 }
 
+template <typename T>
+inline void print(const T a, int num_elem){
+  for(int i=0; i< num_elem; ++i){
+    cout << a[i] << endl;
+  }
+}
+
 extern "C" {
 
+/*
 // update knn set
 void update(unsigned long* temp, unsigned char* knn_mat) {
 
@@ -48,18 +57,36 @@ void update(unsigned long* temp, unsigned char* knn_mat) {
           max_id = i1;
         }
       }
+cout << knn_mat[0] << "\n";
       if (temp[y3 + (x3*burstLength)] < knn_mat[max_id + (x3 * 3)]) {
         knn_mat[max_id + (x3 * 3)] = temp[y3 + (x3*burstLength)];
       }
     }
   }
 }
+*/
 
-void print(unsigned long* a, int num_elem){
-  for(int i=0; i< num_elem; ++i){
-    cout << a[i] << endl;
+// update knn set
+void update(unsigned long* temp, unsigned char* knn_mat) {
+
+update:
+  for (int y3 = 0; y3 < burstLength; ++y3) { // cannot flatten this or pipeline this--seems reasonable
+    #pragma HLS loop_tripcount min = 0 max = burstLength
+    #pragma HLS PIPELINE
+    unsigned long max_id = 0;
+    for (int i1 = 0; i1 < 3; ++i1) {
+      if (knn_mat[max_id] < knn_mat[i1]) {
+        max_id = i1;
+      }
+    }
+    if (temp[y3] < knn_mat[max_id]) {
+      knn_mat[max_id] = temp[y3];
+    }
   }
+// print(knn_mat, 3);
 }
+
+
 
 // see this const issue
 // TODO: split it later according to the parallelization strategy
@@ -98,9 +125,22 @@ void compute(bool enable, unsigned long test_image, unsigned long* train_images,
           dis[x2] = dis[x2] + ((local_temp[x2] & (1L << i)) >> i);
       }
     }
+// print(dis, local_num_elements);
     update(dis, knn_mat); // pass the size here
 }
 
+}
+
+// not sure what it is doing here
+void init_knn_mat(bool enable, unsigned char* a, int num_elems) {
+#pragma HLS inline off
+  // Initialize the knn set
+if(enable){
+  init:
+  for (int y = 0; y < num_elems; ++y) {
+    a[y] = (unsigned char)50;
+  }
+}
 }
 
 void digitrec_kernel(
@@ -114,54 +154,66 @@ void digitrec_kernel(
 #pragma HLS interface s_axilite port=knn_mat bundle=control
 #pragma HLS interface s_axilite port=return bundle=control
 
-  int local_num_elements = burstLength*numImages;
   // TODO: try their mapping
-  unsigned long local_train_images_0[local_num_elements];
-#pragma HLS ARRAY_PARTITION variable=local_train_images_0 cyclic factor=num_chunks dim=1
-
-unsigned long local_train_images_1[local_num_elements];
-#pragma HLS ARRAY_PARTITION variable=local_train_images_1 cyclic factor=num_chunks dim=1
-
-  unsigned char local_knn_mat[3]; // size of this is 30 (updated after each image)
-#pragma HLS ARRAY_PARTITION variable=local_knn_mat cyclic factor=3 dim=1
+  unsigned long local_train_images_0[burstSize];
+  unsigned long local_train_images_1[burstSize];
+  unsigned long local_train_images_2[burstSize];
+  unsigned char local_knn_mat_0[3]; // size of this is 30 (updated after each image)
+  unsigned char local_knn_mat_1[3]; // size of this is 30 (updated after each image)
+  unsigned char local_knn_mat_2[3]; // size of this is 30 (updated after each image)
   unsigned long local_test_image = test_image;
-// #pragma HLS ARRAY_PARTITION variable=local_test_image cyclic factor=num_chunks dim=1
 
-  // Initialize the knn set (jut copying?)
-  init:
-  for (int y = 0; y < 3; ++y) {
-    // Note that the max distance is 49
-    local_knn_mat[y] = (unsigned char)50;
-    }
+#pragma HLS ARRAY_PARTITION variable=local_train_images_0 cyclic factor=num_chunks dim=1
+#pragma HLS ARRAY_PARTITION variable=local_train_images_1 cyclic factor=num_chunks dim=1
+#pragma HLS ARRAY_PARTITION variable=local_train_images_2 cyclic factor=num_chunks dim=1
+// Not sure why, but just to try -- because I don't know how it executes the loop (does it reorder the instructions?--just execute in dataflow order?)
+#pragma HLS ARRAY_PARTITION variable=local_knn_mat_0 cyclic factor=3 dim=1
+#pragma HLS ARRAY_PARTITION variable=local_knn_mat_1 cyclic factor=3 dim=1
+#pragma HLS ARRAY_PARTITION variable=local_knn_mat_2 cyclic factor=3 dim=1
 
   const int kMinTripCount = 0;
-  const int kMaxTripCount = kMinTripCount + 18000/local_num_elements;
+  const int kMaxTripCount = kMinTripCount + num_elements/burstSize;
 
-outer_loop:
 // the outer loop is not a perfect loop because there is nontrivial logic before entering the inner loop.
-  for(int i=0; i<num_elements+burstSize; i+=burstSize, train_images+=burstSize, knn_mat+=3){
+outer_loop:
+  for(int i=0; i<num_elements+(double_buf_pipe*burstSize); i+=burstSize, train_images+=burstSize, knn_mat+=3){
 #pragma HLS loop_tripcount min = kMinTripCount max = kMaxTripCount
-// TODO: need condition for out of range (I think it's in the loops)
-    local_num_elements = Min(num_elements+burstSize-i,(burstLength*numImages));
+    const int local_num_elements = Min(num_elements + (double_buf_pipe*burstSize) - i, burstSize);
 
+    if(((i/burstSize) % double_buf_pipe)==0) {
+      load(i < num_elements, train_images, local_train_images_0, local_num_elements);
+      init_knn_mat(i < num_elements, local_knn_mat_0, 3);
+      compute(i > 0, local_test_image, local_train_images_1, local_knn_mat_1, local_num_elements);
+      load(i < num_elements, local_knn_mat_2, knn_mat, 3); // store
+      // load(i > 0, local_knn_mat_2, knn_mat, 3); // store
+    } else if(((i/burstSize) % double_buf_pipe)==1) {
+      load(i < num_elements, train_images, local_train_images_1, local_num_elements);
+      init_knn_mat(i < num_elements, local_knn_mat_1, 3);
+      compute(i > 0, local_test_image, local_train_images_2, local_knn_mat_2, local_num_elements);
+      load(i < num_elements, local_knn_mat_0, knn_mat, 3); // store
+      // load(i > 0, local_knn_mat_0, knn_mat, 3); // store
+    } else {
+      load(i < num_elements, train_images, local_train_images_2, local_num_elements);
+      init_knn_mat(i < num_elements, local_knn_mat_2, 3);
+      compute(i > 0, local_test_image, local_train_images_0, local_knn_mat_0, local_num_elements);
+      load(i < num_elements, local_knn_mat_1, knn_mat, 3); // store
+      // load(i > 0, local_knn_mat_1, knn_mat, 3); // store
+    }
+
+/*
     if((i/burstSize) % 2) {
       load(i < num_elements, train_images, local_train_images_0, local_num_elements);
-      compute(i > 0, local_test_image, local_train_images_1, local_knn_mat, local_num_elements);
-      load(i > 0, local_knn_mat, knn_mat, 3); // store
+      init_knn_mat(i < num_elements, local_knn_mat_0, 3);
+      compute(i > 0, local_test_image, local_train_images_1, local_knn_mat_1, local_num_elements);
+      load(i > 0, local_knn_mat_1, knn_mat, 3); // store
     } else {
       load(i < num_elements, train_images, local_train_images_1, local_num_elements);
-      compute(i > 0, local_test_image, local_train_images_0, local_knn_mat, local_num_elements);
-      load(i > 0, local_knn_mat, knn_mat, 3); // store
+      init_knn_mat(i < num_elements, local_knn_mat_1, 3);
+      compute(i > 0, local_test_image, local_train_images_0, local_knn_mat_0, local_num_elements);
+      load(i > 0, local_knn_mat_0, knn_mat, 3); // store
     }
-    /*
-    load(train_images, local_train_images, local_num_elements);
-    compute(local_test_image, local_train_images, local_knn_mat, local_num_elements);
-    load(local_knn_mat, knn_mat, 3); // store
-    */
-
-
+*/
   }
-
 }
 
 } // extern "C"
