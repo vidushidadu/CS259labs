@@ -13,6 +13,7 @@ const int num_chunks = 8; // current unroll factor?
 
 template <typename T>
 inline T Min(const T& a, const T& b) { return a < b ? a : b; }
+
 //  These data requests might be further partitioned to multiple requests during RTL generation, based on max_read_burst_length or max_write_burst_length settings.
 template <typename T>
 void load(const T* data_dram, T* data_local, int num_elem){
@@ -34,7 +35,11 @@ void update(unsigned long* temp, unsigned char* knn_mat) {
 // TODO: deal with non-round values (add an if condition)
   update: // unrolled by itself?
   for (int x3 = 0; x3 < numImages; ++x3) {
+#pragma HLS loop_tripcount min = 0 max = numImages
+// #pragma HLS UNROLL
     for (int y3 = 0; y3 < burstLength; ++y3) { // cannot flatten this or pipeline this--seems reasonable
+#pragma HLS loop_tripcount min = 0 max = burstLength
+#pragma HLS PIPELINE
       unsigned long max_id = 0;
       for (int i1 = 0; i1 < 3; ++i1) {
         if (knn_mat[max_id + (x3 * 3)] < knn_mat[(i1 + (x3 * 3))]) {
@@ -76,13 +81,18 @@ void compute(unsigned long test_image, unsigned long* train_images, unsigned cha
 dis_init:
   unsigned long dis[burstSize];
 #pragma HLS ARRAY_PARTITION variable=dis cyclic factor=num_chunks dim=1
-for(int i=0; i<local_num_elements; ++i){
+  
+  for(int i=0; i<local_num_elements; ++i){
+#pragma HLS loop_tripcount min = 0 max = burstSize
   dis[i]=0;
 }
+
 dis:
     for (int i = 0; i < 49; ++i) {
+#pragma HLS loop_tripcount min = 0 max = 49
 #pragma HLS PIPELINE
       for (int x2 = 0; x2 < local_num_elements; ++x2) {
+#pragma HLS loop_tripcount min = 0 max = burstSize
 #pragma HLS UNROLL factor=num_chunks
         dis[x2] = dis[x2] + ((local_temp[x2] & (1L << i)) >> i);
     }
