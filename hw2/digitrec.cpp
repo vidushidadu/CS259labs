@@ -8,6 +8,7 @@ using namespace std;
 // const int burstLength = 256; // 1800 is not a power of 2
 const int burstLength = 1800; // 1800 is not a power of 2
 const int numImages = 1;
+const int burstSize = burstLength*numImages;
 const int num_chunks = 8; // current unroll factor?
 
 template <typename T>
@@ -48,6 +49,12 @@ void update(unsigned long* temp, unsigned char* knn_mat) {
 
 }
 
+void print(unsigned long* a, int num_elem){
+  for(int i=0; i< num_elem; ++i){
+    cout << a[i] << endl;
+  } 
+}
+
 // see this const issue
 // TODO: split it later according to the parallelization strategy
 void compute(unsigned long test_image, unsigned long* train_images, unsigned char* knn_mat, int local_num_elements){
@@ -55,29 +62,33 @@ void compute(unsigned long test_image, unsigned long* train_images, unsigned cha
 // cout << "CAME TO COMPUTE, SHOULD BE 10 TIMES\n"; // see how can i reduce number of images
 
   // Compute the difference using XOR
-  unsigned long temp[(numImages*burstLength)];
+  unsigned long local_temp[burstSize];
+#pragma HLS ARRAY_PARTITION variable=local_temp cyclic factor=num_chunks dim=1
   diff: // Completely parallel
   for (int x1 = 0; x1 < local_num_elements; ++x1) {
     // it said can't unroll with variable trip count
-#pragma HLS loop_tripcount min = 0 max = (numImages*burstLength)
+#pragma HLS loop_tripcount min = 0 max = burstSize
 #pragma HLS UNROLL factor=num_chunks
-    temp[x1] = train_images[x1] ^ test_image;
-// cout << "Output of xor stage: " << temp[x1] << "\n";
+    local_temp[x1] = train_images[x1] ^ test_image;
   }
 
   // Compute the distance
-dis:
-unsigned long dis[(numImages*burstLength)];
+dis_init:
+  unsigned long dis[burstSize];
+#pragma HLS ARRAY_PARTITION variable=dis cyclic factor=num_chunks dim=1
 for(int i=0; i<local_num_elements; ++i){
   dis[i]=0;
 }
+dis:
     for (int i = 0; i < 49; ++i) {
-#pragma HLS PIPELINE II=1
+#pragma HLS PIPELINE
       for (int x2 = 0; x2 < local_num_elements; ++x2) {
 #pragma HLS UNROLL factor=num_chunks
-        dis[x2] += (temp[x2] & (1L << i)) >> i;
+        dis[x2] = dis[x2] + ((local_temp[x2] & (1L << i)) >> i);
     }
   }
+
+
   update(dis, knn_mat); // pass the size here
 
 }
@@ -100,7 +111,7 @@ void digitrec_kernel(
   unsigned char local_knn_mat[30]; // size of this is 30 (updated after each image)
 #pragma HLS ARRAY_PARTITION variable=local_knn_mat cyclic factor=num_chunks dim=1
   unsigned long local_test_image = test_image;
-#pragma HLS ARRAY_PARTITION variable=local_test_image cyclic factor=num_chunks dim=1
+// #pragma HLS ARRAY_PARTITION variable=local_test_image cyclic factor=num_chunks dim=1
 
   // Initialize the knn set (jut copying?)
   init:
