@@ -37,35 +37,6 @@ inline void print(const T a, int num_elem){
 
 extern "C" {
 
-/*
-// update knn set
-void update(unsigned long* temp, unsigned char* knn_mat) {
-
-// this is max_id for any given x3 and y3 pair max_id[local_num_elements]; or single loop and replace x3 in knn to ceil(burstLength*numImages/x3')
-// this is serial for image size (1800) and parallel for num_images
-// TODO: deal with non-round values (add an if condition)
-  update: // unrolled by itself?
-  for (int x3 = 0; x3 < numImages; ++x3) {
-    #pragma HLS loop_tripcount min = 0 max = numImages
-    // #pragma HLS UNROLL
-    for (int y3 = 0; y3 < burstLength; ++y3) { // cannot flatten this or pipeline this--seems reasonable
-      #pragma HLS loop_tripcount min = 0 max = burstLength
-      #pragma HLS PIPELINE
-      unsigned long max_id = 0;
-      for (int i1 = 0; i1 < 3; ++i1) {
-        if (knn_mat[max_id + (x3 * 3)] < knn_mat[(i1 + (x3 * 3))]) {
-          max_id = i1;
-        }
-      }
-cout << knn_mat[0] << "\n";
-      if (temp[y3 + (x3*burstLength)] < knn_mat[max_id + (x3 * 3)]) {
-        knn_mat[max_id + (x3 * 3)] = temp[y3 + (x3*burstLength)];
-      }
-    }
-  }
-}
-*/
-
 // update knn set
 void update(unsigned long* temp, unsigned char* knn_mat) {
 
@@ -180,39 +151,22 @@ outer_loop:
 #pragma HLS loop_tripcount min = kMinTripCount max = kMaxTripCount
     const int local_num_elements = Min(num_elements + (double_buf_pipe*burstSize) - i, burstSize);
 
-    if(((i/burstSize) % double_buf_pipe)==0) {
+   if(((i/burstSize) % double_buf_pipe)==0) {
       load(i < num_elements, train_images, local_train_images_0, local_num_elements);
       init_knn_mat(i < num_elements, local_knn_mat_0, 3);
       compute(i > 0, local_test_image, local_train_images_1, local_knn_mat_1, local_num_elements);
-      load(i < num_elements, local_knn_mat_2, knn_mat, 3); // store
-      // load(i > 0, local_knn_mat_2, knn_mat, 3); // store
+      load(i > -burstSize, local_knn_mat_2, knn_mat, 3); // store
     } else if(((i/burstSize) % double_buf_pipe)==1) {
       load(i < num_elements, train_images, local_train_images_1, local_num_elements);
       init_knn_mat(i < num_elements, local_knn_mat_1, 3);
       compute(i > 0, local_test_image, local_train_images_2, local_knn_mat_2, local_num_elements);
-      load(i < num_elements, local_knn_mat_0, knn_mat, 3); // store
-      // load(i > 0, local_knn_mat_0, knn_mat, 3); // store
+      load(i > -burstSize, local_knn_mat_0, knn_mat, 3); // store
     } else {
       load(i < num_elements, train_images, local_train_images_2, local_num_elements);
       init_knn_mat(i < num_elements, local_knn_mat_2, 3);
       compute(i > 0, local_test_image, local_train_images_0, local_knn_mat_0, local_num_elements);
-      load(i < num_elements, local_knn_mat_1, knn_mat, 3); // store
-      // load(i > 0, local_knn_mat_1, knn_mat, 3); // store
+      load(i > -burstSize, local_knn_mat_1, knn_mat, 3); // store
     }
-
-/*
-    if((i/burstSize) % 2) {
-      load(i < num_elements, train_images, local_train_images_0, local_num_elements);
-      init_knn_mat(i < num_elements, local_knn_mat_0, 3);
-      compute(i > 0, local_test_image, local_train_images_1, local_knn_mat_1, local_num_elements);
-      load(i > 0, local_knn_mat_1, knn_mat, 3); // store
-    } else {
-      load(i < num_elements, train_images, local_train_images_1, local_num_elements);
-      init_knn_mat(i < num_elements, local_knn_mat_1, 3);
-      compute(i > 0, local_test_image, local_train_images_0, local_knn_mat_0, local_num_elements);
-      load(i > 0, local_knn_mat_0, knn_mat, 3); // store
-    }
-*/
   }
 }
 
