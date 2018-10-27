@@ -2,26 +2,38 @@
 #include <math.h>
 #include <assert.h>
 #include <iostream>
+#include <ap_int.h>
 
 using namespace std;
 
 const int burstLength = 1800; // 1800 is not a power of 2
 const int numImages = 1;
 const int burstSize = burstLength*numImages;
+const int burstWidth = 256; // datawidth size = should be a multiple of 8 (otherwise other issues)
 const int num_chunks = 360; // if factor of 1800--can remove conditional check
 const int num_elements = 18000;
+const int longSize = 32; // 4 bytes
 
 template <typename T>
 inline T Min(const T& a, const T& b) { return a < b ? a : b; }
 
+template<typename To, typename From>
+inline To Reinterpret(const From& val){
+  return reinterpret_cast<const To&>(val);
+}
+
 //  These data requests might be further partitioned to multiple requests during RTL generation, based on max_read_burst_length or max_write_burst_length settings.
 template <typename T>
-void load(bool enable, const T* data_dram, T* data_local, int num_elem){
+void load(bool enable, const ap_uint<burstWidth>* data_dram, T* data_local, int num_elem){
 #pragma HLS inline off
   if(enable){
-    for(int i=0; i<num_elem; ++i){
+    for(int i=0; i<num_elem / (burstWidth/longSize); ++i){
       #pragma HLS pipeline
-      data_local[i]=data_dram[i];
+      ap_uint<burstWidth> tmp = data_dram[i];
+      for(int j=0; j < burstWidth/longSize; ++j){
+        data_local[i*(burstWidth/longSize)+j] =
+        Reinterpret<unsigned long>(static_cast<unsigned>(tmp((j+1)*longSize-1,j*longSize)));
+      }
     }
   }
 }
@@ -61,20 +73,20 @@ if(enable){
 // TODO: local_num_elements is actually not required in this implementation
 // update knn set
 // I can do tiling here
-void update(unsigned long* dis, unsigned char* local_knn_mat) {
+void update(unsigned long* dis, unsigned char* knn_mat) {
 #pragma HLS inline off
-  init_knn_mat(true, local_knn_mat, 3);
+  init_knn_mat(true, knn_mat, 3);
 update:
   for (int y3 = 0; y3 < burstLength; ++y3) { // cannot flatten this or pipeline this--seems reasonable
     #pragma HLS PIPELINE
     unsigned long max_id = 0;
     for (int i1 = 0; i1 < 3; ++i1) {
-      if (local_knn_mat[max_id] < local_knn_mat[i1]) {
+      if (knn_mat[max_id] < knn_mat[i1]) {
         max_id = i1;
       }
     }
-    if (dis[y3] < local_knn_mat[max_id]) {
-     local_knn_mat[max_id] = dis[y3];
+    if (dis[y3] < knn_mat[max_id]) {
+      knn_mat[max_id] = dis[y3];
     }
   }
 }
@@ -121,7 +133,7 @@ void compute(bool enable, unsigned long test_image, unsigned long* train_images,
 // this is called 180 times for all test images
 void digitrec_kernel(
     unsigned long test_image,
-    unsigned long* train_images,
+    unsigned ap_uint<burstWidth>* train_images,
     unsigned char* knn_mat) {
 #pragma HLS interface m_axi port=train_images offset=slave bundle=gmem
 #pragma HLS interface m_axi port=knn_mat offset=slave bundle=gmem2
@@ -134,9 +146,9 @@ void digitrec_kernel(
   unsigned long local_train_images_0[burstSize];
   unsigned long local_train_images_1[burstSize];
   unsigned long local_train_images_2[burstSize];
-  unsigned char local_knn_mat_0[3]; 
-  unsigned char local_knn_mat_1[3]; 
-  unsigned char local_knn_mat_2[3]; 
+  unsigned char local_knn_mat_0[3];
+  unsigned char local_knn_mat_1[3];
+  unsigned char local_knn_mat_2[3];
   unsigned long local_test_image = test_image;
 
 #pragma HLS ARRAY_PARTITION variable=local_train_images_0 cyclic factor=num_chunks dim=1
@@ -154,7 +166,7 @@ void digitrec_kernel(
 int knn_mat_index = 0;
 
 outer_loop:
-  for(int i=0; i<num_elements+(2*burstSize); i+=burstSize, train_images+=burstSize) { 
+  for(int i=0; i<num_elements+(2*burstSize); i+=burstSize, train_images+= (burstSize/(burstWidth/longSize))) {
 #pragma HLS loop_tripcount min = kMinTripCount max = kMaxTripCount
 
     bool cond1 = i < num_elements;
