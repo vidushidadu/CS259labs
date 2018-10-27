@@ -1,0 +1,382 @@
+<ENTRY>
+{
+    "EntryID": "1",
+    "Type": "CmdStep",
+    "DateTimestamp": "2018-Oct-13 22:18:14.261000",
+    "TimestampMillis": "80294261",
+    "Payload": {
+        "CmdStepID": "81ded367-7f8d-4f54-911f-426d6ea2bc90",
+        "Command": "xocc",
+        "LogFile": "$LOGDIR\/..\/link\/link.steps.log",
+        "CommandLine": "\/opt\/Xilinx\/SDx\/2018.2.op2258646\/bin\/unwrapped\/lnx64.o\/xocc --xp param:compiler.lockFlowCritSlackThreshold=0 --xp vivado_param:bd.disablePrefixForFaasIntf=1 --xp vivado_param:hd.routingContainmentAreaExpansion=true --xp vivado_param:hd.supportClockNetCrossDiffReconfigurablePartitions=1 --xp vivado_param:bitstream.enablePR=4123 --xp vivado_param:physynth.ultraRAMOptOutput=false --xp vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MAX_URAM_CASCADE_HEIGHT}={1} --xp vivado_param:synth.elaboration.rodinMoreOptions={rt::set_parameter disableOregPackingUram true}  --xp \"misc:report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10}\" --xp param:compiler.enableRunInBitstreamGeneration=1 --xp \"vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high}\" -l --xp param:compiler.preserveHlsOutput=1 --xp param:compiler.generateExtraRunData=true -s -o xclbin\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xclbin -t hw_emu --platform \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/aws_platform\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm xclbin\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xo --xp param:compiler.useHlsGpp=1 ",
+        "OptionArgs": [
+            "--xp",
+            "param:compiler.lockFlowCritSlackThreshold=0",
+            "--xp",
+            "vivado_param:bd.disablePrefixForFaasIntf=1",
+            "--xp",
+            "vivado_param:hd.routingContainmentAreaExpansion=true",
+            "--xp",
+            "vivado_param:hd.supportClockNetCrossDiffReconfigurablePartitions=1",
+            "--xp",
+            "vivado_param:bitstream.enablePR=4123",
+            "--xp",
+            "vivado_param:physynth.ultraRAMOptOutput=false",
+            "--xp",
+            "vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MAX_URAM_CASCADE_HEIGHT}={1}",
+            "--xp",
+            "vivado_param:synth.elaboration.rodinMoreOptions={rt::set_parameter disableOregPackingUram true}",
+            "-l",
+            "--xp",
+            "param:compiler.preserveHlsOutput=1",
+            "--xp",
+            "param:compiler.generateExtraRunData=true",
+            "-s",
+            "-o",
+            "xclbin\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xclbin",
+            "-t",
+            "hw_emu",
+            "--platform",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/aws_platform\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm",
+            "xclbin\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xo",
+            "--xp",
+            "param:compiler.useHlsGpp=1"
+        ]
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "2",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:18:14.261000",
+    "TimestampMillis": "80294261",
+    "Payload": {
+        "CmdStepID": "81ded367-7f8d-4f54-911f-426d6ea2bc90",
+        "Status": "Start"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "3",
+    "Type": "FlowMetaData",
+    "DateTimestamp": "2018-Oct-13 22:18:23.796000",
+    "TimestampMillis": "80303796",
+    "Payload": {
+        "HardwarePlatform": "xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm",
+        "HardwareDSA": "xilinx_aws-vu9p-f1-04261818_dynamic_5_0.dsa",
+        "PlatformDirectory": "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/aws_platform\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0",
+        "Runtime": "OpenCL",
+        "SystemConfiguration": "Linux",
+        "BinaryContainer": "dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0",
+        "BuildFlow": "LINK",
+        "Target": "HW_EMU",
+        "Kernels": [
+            {
+                "KernelName": "dot_prod_kernel",
+                "KernelObj": "$LOGDIR\/..\/..\/xclbin\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xo",
+                "KernelSrcs": [
+                    "$LOGDIR\/..\/link\/int\/xo\/dot_prod_kernel\/dot_prod_kernel\/cpu_sources\/dot_prod_kernel.cpp"
+                ]
+            }
+        ]
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "4",
+    "Type": "SubCmdStep",
+    "DateTimestamp": "2018-Oct-13 22:18:23.805000",
+    "TimestampMillis": "80303805",
+    "Payload": {
+        "CmdStepID": "6d8d9f9c-b208-4c2a-ae46-73d64e6d7b72",
+        "Command": "sdx_link",
+        "LogFile": "",
+        "TransactionLogFile": "",
+        "CommandLine": "sdx_link --xo xclbin\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xo -keep --xpfm \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/aws_platform\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm --target emu --output_dir \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int --temp_dir \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/sys_link",
+        "OptionArgs": [
+            "--xo",
+            "xclbin\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xo",
+            "-keep",
+            "--xpfm",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/aws_platform\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm",
+            "--target",
+            "emu",
+            "--output_dir",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int",
+            "--temp_dir",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/sys_link"
+        ]
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "5",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:18:23.806000",
+    "TimestampMillis": "80303806",
+    "Payload": {
+        "CmdStepID": "6d8d9f9c-b208-4c2a-ae46-73d64e6d7b72",
+        "Status": "Start"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "6",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:18:30.232000",
+    "TimestampMillis": "80310232",
+    "Payload": {
+        "CmdStepID": "6d8d9f9c-b208-4c2a-ae46-73d64e6d7b72",
+        "Status": "Passed"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "7",
+    "Type": "SubCmdStep",
+    "DateTimestamp": "2018-Oct-13 22:18:30.233000",
+    "TimestampMillis": "80310233",
+    "Payload": {
+        "CmdStepID": "b3bd60d3-ad8e-4e17-9240-0c867ae5f557",
+        "Command": "vpl",
+        "LogFile": "",
+        "TransactionLogFile": "$LOGDIR\/..\/link\/.tlog\/vpl.xtl",
+        "CommandLine": "vpl --xp param:compiler.lockFlowCritSlackThreshold=0 --xp vivado_param:bd.disablePrefixForFaasIntf=1 --xp vivado_param:hd.routingContainmentAreaExpansion=true --xp vivado_param:hd.supportClockNetCrossDiffReconfigurablePartitions=1 --xp vivado_param:bitstream.enablePR=4123 --xp vivado_param:physynth.ultraRAMOptOutput=false --xp vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MAX_URAM_CASCADE_HEIGHT}={1} --xp vivado_param:synth.elaboration.rodinMoreOptions={rt::set_parameter disableOregPackingUram true} -t hw_emu -f \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/aws_platform\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm --xp param:compiler.enablePerformanceTrace=1 --xp misc:report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10} --xp vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high} --xp param:compiler.enableRunInBitstreamGeneration=1 --xp param:compiler.preserveHlsOutput=1 --xp param:compiler.generateExtraRunData=true --xp param:compiler.useHlsGpp=1 -s --output_dir \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int --log_dir \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/logs\/link --report_dir \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/reports\/link -k \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/kernel_info.dat --webtalk_flag SDAccel --temp_dir \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link --emulation_mode debug_waveform --no-info --iprepo \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/xo\/ip_repo\/xilinx_com_hls_dot_prod_kernel_1_0 \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dr.bd.tcl",
+        "OptionArgs": [
+            "--xp",
+            "param:compiler.lockFlowCritSlackThreshold=0",
+            "--xp",
+            "vivado_param:bd.disablePrefixForFaasIntf=1",
+            "--xp",
+            "vivado_param:hd.routingContainmentAreaExpansion=true",
+            "--xp",
+            "vivado_param:hd.supportClockNetCrossDiffReconfigurablePartitions=1",
+            "--xp",
+            "vivado_param:bitstream.enablePR=4123",
+            "--xp",
+            "vivado_param:physynth.ultraRAMOptOutput=false",
+            "--xp",
+            "vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MAX_URAM_CASCADE_HEIGHT}={1}",
+            "--xp",
+            "vivado_param:synth.elaboration.rodinMoreOptions={rt::set_parameter disableOregPackingUram true}",
+            "-t",
+            "hw_emu",
+            "-f",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/aws_platform\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm",
+            "--xp",
+            "param:compiler.enablePerformanceTrace=1",
+            "--xp",
+            "misc:report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10}",
+            "--xp",
+            "vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high}",
+            "--xp",
+            "param:compiler.enableRunInBitstreamGeneration=1",
+            "--xp",
+            "param:compiler.preserveHlsOutput=1",
+            "--xp",
+            "param:compiler.generateExtraRunData=true",
+            "--xp",
+            "param:compiler.useHlsGpp=1",
+            "-s",
+            "--output_dir",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int",
+            "--log_dir",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/logs\/link",
+            "--report_dir",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/reports\/link",
+            "-k",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/kernel_info.dat",
+            "--webtalk_flag",
+            "SDAccel",
+            "--temp_dir",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link",
+            "--emulation_mode",
+            "debug_waveform",
+            "--no-info",
+            "--iprepo",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/xo\/ip_repo\/xilinx_com_hls_dot_prod_kernel_1_0",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dr.bd.tcl"
+        ]
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "8",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:18:30.233000",
+    "TimestampMillis": "80310233",
+    "Payload": {
+        "CmdStepID": "b3bd60d3-ad8e-4e17-9240-0c867ae5f557",
+        "Status": "Start"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "9",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:20:11.201000",
+    "TimestampMillis": "80411201",
+    "Payload": {
+        "CmdStepID": "b3bd60d3-ad8e-4e17-9240-0c867ae5f557",
+        "Status": "Passed"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "10",
+    "Type": "SubCmdStep",
+    "DateTimestamp": "2018-Oct-13 22:20:11.206000",
+    "TimestampMillis": "80411206",
+    "Payload": {
+        "CmdStepID": "8f916406-b2f8-4fe8-a559-594c565e20c8",
+        "Command": "cf2sw",
+        "LogFile": "",
+        "TransactionLogFile": "",
+        "CommandLine": "cf2sw -a \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/address_map.xml -sdsl \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/sdsl.dat -xclbin \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/xclbin_orig.xml -rtd \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.rtd -rtd \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/debug_ip_layout.rtd -o \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xml",
+        "OptionArgs": [
+            "-a",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/address_map.xml",
+            "-sdsl",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/sdsl.dat",
+            "-xclbin",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/xclbin_orig.xml",
+            "-rtd",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.rtd",
+            "-rtd",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/debug_ip_layout.rtd",
+            "-o",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xml"
+        ]
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "11",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:20:11.206000",
+    "TimestampMillis": "80411206",
+    "Payload": {
+        "CmdStepID": "8f916406-b2f8-4fe8-a559-594c565e20c8",
+        "Status": "Start"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "12",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:20:12.072000",
+    "TimestampMillis": "80412072",
+    "Payload": {
+        "CmdStepID": "8f916406-b2f8-4fe8-a559-594c565e20c8",
+        "Status": "Passed"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "13",
+    "Type": "SubCmdStep",
+    "DateTimestamp": "2018-Oct-13 22:20:12.615000",
+    "TimestampMillis": "80412615",
+    "Payload": {
+        "CmdStepID": "635fda13-9e08-4488-a6f4-71ff05848fcd",
+        "Command": "xclbincat",
+        "LogFile": "$LOGDIR\/..\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0_xclbincat.log",
+        "TransactionLogFile": "",
+        "CommandLine": "\/opt\/Xilinx\/SDx\/2018.2.op2258646\/bin\/..\/runtime\/bin\/xclbincat -bitstream \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/behav.xse -k mode:hw_pr -k featureRomTimestamp:0 -k platformVBNV:xilinx:aws-vu9p-f1-04261818:dynamic:5.0 --runtime_data \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.rtd --runtime_data \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/debug_ip_layout.rtd --runtime_data \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0_xml.rtd \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xml \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xcp",
+        "OptionArgs": [
+            "-bitstream",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/behav.xse",
+            "-k",
+            "mode:hw_pr",
+            "-k",
+            "featureRomTimestamp:0",
+            "-k",
+            "platformVBNV:xilinx:aws-vu9p-f1-04261818:dynamic:5.0",
+            "--runtime_data",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.rtd",
+            "--runtime_data",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/debug_ip_layout.rtd",
+            "--runtime_data",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0_xml.rtd",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xml",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/link\/int\/dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xcp"
+        ]
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "14",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:20:12.615000",
+    "TimestampMillis": "80412615",
+    "Payload": {
+        "CmdStepID": "635fda13-9e08-4488-a6f4-71ff05848fcd",
+        "Status": "Start"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "15",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:20:12.627000",
+    "TimestampMillis": "80412627",
+    "Payload": {
+        "CmdStepID": "635fda13-9e08-4488-a6f4-71ff05848fcd",
+        "Status": "Passed"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "16",
+    "Type": "Report",
+    "DateTimestamp": "2018-Oct-13 22:20:12.658000",
+    "TimestampMillis": "80412658",
+    "Payload": {
+        "File": "$LOGDIR\/..\/reports\/link\/system_estimate_dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xtxt",
+        "Type": "TEXT",
+        "ReportType": "GLOBAL_SYSTEM_ESTIMATE",
+        "KernelName": ""
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "17",
+    "Type": "Report",
+    "DateTimestamp": "2018-Oct-13 22:20:12.693000",
+    "TimestampMillis": "80412693",
+    "Payload": {
+        "File": "$LOGDIR\/..\/reports\/link\/xocc_link_dot_prod_kernel.hw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0_guidance.html",
+        "Type": "HTML",
+        "ReportType": "GLOBAL_RULECHECK_GUIDANCE",
+        "KernelName": ""
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "18",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:20:12.715000",
+    "TimestampMillis": "80412715",
+    "Payload": {
+        "CmdStepID": "81ded367-7f8d-4f54-911f-426d6ea2bc90",
+        "Status": "Passed"
+    }
+}
+</ENTRY>

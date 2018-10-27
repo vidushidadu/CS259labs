@@ -1,0 +1,281 @@
+
+
+================================================================
+== Vivado HLS Report for 'load_unsigned_long_s'
+================================================================
+* Date:           Thu Oct 25 00:31:37 2018
+
+* Version:        2018.2_AR71275_op (Build 2258646 on Thu Jun 14 20:25:20 MDT 2018)
+* Project:        digitrec_kernel
+* Solution:       solution
+* Product family: virtexuplus
+* Target device:  xcvu9p-flgb2104-2-i
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing (ns): 
+    * Summary: 
+    +--------+-------+----------+------------+
+    |  Clock | Target| Estimated| Uncertainty|
+    +--------+-------+----------+------------+
+    |ap_clk  |   4.00|     2.920|        1.08|
+    +--------+-------+----------+------------+
+
++ Latency (clock cycles): 
+    * Summary: 
+    +-----+------+-----+------+---------+
+    |   Latency  |  Interval  | Pipeline|
+    | min |  max | min |  max |   Type  |
+    +-----+------+-----+------+---------+
+    |   11|  1810|   11|  1810|   none  |
+    +-----+------+-----+------+---------+
+
+    + Detail: 
+        * Instance: 
+        N/A
+
+        * Loop: 
+        +----------+-----+------+----------+-----------+-----------+----------+----------+
+        |          |   Latency  | Iteration|  Initiation Interval  |   Trip   |          |
+        | Loop Name| min |  max |  Latency |  achieved |   target  |   Count  | Pipelined|
+        +----------+-----+------+----------+-----------+-----------+----------+----------+
+        |- Loop 1  |    2|  1801|         3|          1|          1| 1 ~ 1800 |    yes   |
+        +----------+-----+------+----------+-----------+-----------+----------+----------+
+
+============================================================
++ Verbose Summary: Synthesis Manager
+============================================================
+InlineROM: 1
+ExposeGlobal: 0
+============================================================
++ Verbose Summary: CDFG Model
+============================================================
+IsTopModel: 0
+ResetActiveHigh: 1
+IsCombinational: 0
+IsDatapathOnly: 0
+HasWiredReturn: 1
+HasMFsm: 0
+HasVarLatency: 1
+IsPipeline: 0
+IsRtlPipelined: 0
+IsInstanceOverlapped: 0
+IsDontTouch: 0
+HasImplIP: 0
+IsGatedGlobalClock: 0
+
++ Individual pipeline summary: 
+  * Pipeline-0: initiation interval (II) = 1, depth = 3
+
+
+============================================================
++ Verbose Summary: Schedule
+============================================================
+* Number of FSM states : 12
+* Pipeline : 1
+  Pipeline-0 : II = 1, D = 3, States = { 9 10 11 }
+* Dataflow Pipeline: 0
+
+* FSM state transitions: 
+1 --> 
+	2  / true
+2 --> 
+	3  / true
+3 --> 
+	4  / true
+4 --> 
+	5  / true
+5 --> 
+	6  / true
+6 --> 
+	7  / true
+7 --> 
+	8  / true
+8 --> 
+	9  / true
+9 --> 
+	12  / (exitcond)
+	10  / (!exitcond)
+10 --> 
+	11  / true
+11 --> 
+	9  / true
+12 --> 
+
+* FSM state operations: 
+
+State 1 <SV = 0> <Delay = 1.10>
+ST_1 : Operation 13 [1/1] (0.00ns)   --->   "%data_dram_offset1_read = call i15 @_ssdm_op_Read.ap_auto.i15(i15 %data_dram_offset1)"   --->   Operation 13 'read' 'data_dram_offset1_read' <Predicate = true> <Delay = 0.00>
+ST_1 : Operation 14 [1/1] (0.00ns)   --->   "%data_dram_offset_read = call i61 @_ssdm_op_Read.ap_auto.i61(i61 %data_dram_offset)"   --->   Operation 14 'read' 'data_dram_offset_read' <Predicate = true> <Delay = 0.00>
+ST_1 : Operation 15 [1/1] (0.00ns)   --->   "%tmp_23_cast = zext i15 %data_dram_offset1_read to i62"   --->   Operation 15 'zext' 'tmp_23_cast' <Predicate = true> <Delay = 0.00>
+ST_1 : Operation 16 [1/1] (0.00ns)   --->   "%data_dram_offset_cast = zext i61 %data_dram_offset_read to i62"   --->   Operation 16 'zext' 'data_dram_offset_cast' <Predicate = true> <Delay = 0.00>
+ST_1 : Operation 17 [1/1] (1.10ns)   --->   "%sum2 = add i62 %data_dram_offset_cast, %tmp_23_cast"   --->   Operation 17 'add' 'sum2' <Predicate = true> <Delay = 1.10> <Core = "AddSub">   --->   Core 14 'AddSub' <Latency = 0> <II = 1> <Delay = 1.10> <FuncUnit> <Opcode : 'add' 'sub'> <InPorts = 2> <OutPorts = 1>
+
+State 2 <SV = 1> <Delay = 2.92>
+ST_2 : Operation 18 [1/1] (0.00ns)   --->   "%num_elem_read = call i11 @_ssdm_op_Read.ap_auto.i11(i11 %num_elem)"   --->   Operation 18 'read' 'num_elem_read' <Predicate = true> <Delay = 0.00>
+ST_2 : Operation 19 [1/1] (0.00ns)   --->   "%sum2_cast = zext i62 %sum2 to i64"   --->   Operation 19 'zext' 'sum2_cast' <Predicate = true> <Delay = 0.00>
+ST_2 : Operation 20 [1/1] (0.00ns)   --->   "%data_dram_addr = getelementptr i64* %data_dram, i64 %sum2_cast" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 20 'getelementptr' 'data_dram_addr' <Predicate = true> <Delay = 0.00>
+ST_2 : Operation 21 [1/1] (0.00ns)   --->   "%tmp_23 = zext i11 %num_elem_read to i32"   --->   Operation 21 'zext' 'tmp_23' <Predicate = true> <Delay = 0.00>
+ST_2 : Operation 22 [7/7] (2.92ns)   --->   "%data_dram_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i64P(i64* %data_dram_addr, i32 %tmp_23)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 22 'readreq' 'data_dram_addr_rd_req' <Predicate = true> <Delay = 2.92> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 3 <SV = 2> <Delay = 2.92>
+ST_3 : Operation 23 [6/7] (2.92ns)   --->   "%data_dram_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i64P(i64* %data_dram_addr, i32 %tmp_23)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 23 'readreq' 'data_dram_addr_rd_req' <Predicate = true> <Delay = 2.92> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 4 <SV = 3> <Delay = 2.92>
+ST_4 : Operation 24 [5/7] (2.92ns)   --->   "%data_dram_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i64P(i64* %data_dram_addr, i32 %tmp_23)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 24 'readreq' 'data_dram_addr_rd_req' <Predicate = true> <Delay = 2.92> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 5 <SV = 4> <Delay = 2.92>
+ST_5 : Operation 25 [4/7] (2.92ns)   --->   "%data_dram_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i64P(i64* %data_dram_addr, i32 %tmp_23)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 25 'readreq' 'data_dram_addr_rd_req' <Predicate = true> <Delay = 2.92> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 6 <SV = 5> <Delay = 2.92>
+ST_6 : Operation 26 [3/7] (2.92ns)   --->   "%data_dram_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i64P(i64* %data_dram_addr, i32 %tmp_23)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 26 'readreq' 'data_dram_addr_rd_req' <Predicate = true> <Delay = 2.92> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 7 <SV = 6> <Delay = 2.92>
+ST_7 : Operation 27 [2/7] (2.92ns)   --->   "%data_dram_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i64P(i64* %data_dram_addr, i32 %tmp_23)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 27 'readreq' 'data_dram_addr_rd_req' <Predicate = true> <Delay = 2.92> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+
+State 8 <SV = 7> <Delay = 2.92>
+ST_8 : Operation 28 [1/1] (0.00ns)   --->   "call void (...)* @_ssdm_op_SpecInterface(i64* %data_dram, [6 x i8]* @p_str8, i32 0, i32 0, [1 x i8]* @p_str1, i32 0, i32 0, [5 x i8]* @p_str9, [6 x i8]* @p_str10, [1 x i8]* @p_str1, i32 16, i32 16, i32 16, i32 16, [1 x i8]* @p_str1, [1 x i8]* @p_str1)"   --->   Operation 28 'specinterface' <Predicate = true> <Delay = 0.00>
+ST_8 : Operation 29 [1/7] (2.92ns)   --->   "%data_dram_addr_rd_req = call i1 @_ssdm_op_ReadReq.m_axi.i64P(i64* %data_dram_addr, i32 %tmp_23)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 29 'readreq' 'data_dram_addr_rd_req' <Predicate = true> <Delay = 2.92> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+ST_8 : Operation 30 [1/1] (0.60ns)   --->   "br label %1" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:22]   --->   Operation 30 'br' <Predicate = true> <Delay = 0.60>
+
+State 9 <SV = 8> <Delay = 0.73>
+ST_9 : Operation 31 [1/1] (0.00ns)   --->   "%i = phi i11 [ 0, %0 ], [ %i_1, %3 ]"   --->   Operation 31 'phi' 'i' <Predicate = true> <Delay = 0.00>
+ST_9 : Operation 32 [1/1] (0.00ns)   --->   "call void (...)* @_ssdm_op_SpecLoopTripCount(i64 1, i64 1800, i64 0)"   --->   Operation 32 'speclooptripcount' <Predicate = true> <Delay = 0.00>
+ST_9 : Operation 33 [1/1] (0.61ns)   --->   "%exitcond = icmp eq i11 %i, %num_elem_read" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:22]   --->   Operation 33 'icmp' 'exitcond' <Predicate = true> <Delay = 0.61> <Core = "Cmp">   --->   Core 25 'Cmp' <Latency = 0> <II = 1> <Delay = 0.61> <FuncUnit> <Opcode : 'icmp'> <InPorts = 2> <OutPorts = 1>
+ST_9 : Operation 34 [1/1] (0.73ns)   --->   "%i_1 = add i11 %i, 1" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:22]   --->   Operation 34 'add' 'i_1' <Predicate = true> <Delay = 0.73> <Core = "AddSub">   --->   Core 14 'AddSub' <Latency = 0> <II = 1> <Delay = 1.10> <FuncUnit> <Opcode : 'add' 'sub'> <InPorts = 2> <OutPorts = 1>
+ST_9 : Operation 35 [1/1] (0.00ns)   --->   "br i1 %exitcond, label %4, label %2" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:22]   --->   Operation 35 'br' <Predicate = true> <Delay = 0.00>
+ST_9 : Operation 36 [1/1] (0.00ns)   --->   "%tmp = trunc i11 %i to i3" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:22]   --->   Operation 36 'trunc' 'tmp' <Predicate = (!exitcond)> <Delay = 0.00>
+ST_9 : Operation 37 [1/1] (0.00ns)   --->   "%newIndex = call i8 @_ssdm_op_PartSelect.i8.i11.i32.i32(i11 %i, i32 3, i32 10)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:22]   --->   Operation 37 'partselect' 'newIndex' <Predicate = (!exitcond)> <Delay = 0.00>
+ST_9 : Operation 38 [1/1] (0.63ns)   --->   "switch i3 %tmp, label %branch7 [
+    i3 0, label %branch0
+    i3 1, label %branch1
+    i3 2, label %branch2
+    i3 3, label %branch3
+    i3 -4, label %branch4
+    i3 -3, label %branch5
+    i3 -2, label %branch6
+  ]" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 38 'switch' <Predicate = (!exitcond)> <Delay = 0.63>
+
+State 10 <SV = 9> <Delay = 2.92>
+ST_10 : Operation 39 [1/1] (2.92ns)   --->   "%data_dram_addr_read = call i64 @_ssdm_op_Read.m_axi.i64P(i64* %data_dram_addr)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 39 'read' 'data_dram_addr_read' <Predicate = true> <Delay = 2.92> <Core = "m_axi">   --->   Core 9 'm_axi' <Latency = 6> <II = 1> <Delay = 1.00> <Adapter> <Opcode : 'read' 'write' 'readreq' 'writereq' 'writeresp'>
+ST_10 : Operation 40 [1/1] (0.00ns)   --->   "br label %3" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 40 'br' <Predicate = (tmp == 6)> <Delay = 0.00>
+ST_10 : Operation 41 [1/1] (0.00ns)   --->   "br label %3" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 41 'br' <Predicate = (tmp == 5)> <Delay = 0.00>
+ST_10 : Operation 42 [1/1] (0.00ns)   --->   "br label %3" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 42 'br' <Predicate = (tmp == 4)> <Delay = 0.00>
+ST_10 : Operation 43 [1/1] (0.00ns)   --->   "br label %3" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 43 'br' <Predicate = (tmp == 3)> <Delay = 0.00>
+ST_10 : Operation 44 [1/1] (0.00ns)   --->   "br label %3" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 44 'br' <Predicate = (tmp == 2)> <Delay = 0.00>
+ST_10 : Operation 45 [1/1] (0.00ns)   --->   "br label %3" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 45 'br' <Predicate = (tmp == 1)> <Delay = 0.00>
+ST_10 : Operation 46 [1/1] (0.00ns)   --->   "br label %3" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 46 'br' <Predicate = (tmp == 0)> <Delay = 0.00>
+ST_10 : Operation 47 [1/1] (0.00ns)   --->   "br label %3" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 47 'br' <Predicate = (tmp == 7)> <Delay = 0.00>
+
+State 11 <SV = 10> <Delay = 1.15>
+ST_11 : Operation 48 [1/1] (0.00ns)   --->   "%tmp_s = call i32 (...)* @_ssdm_op_SpecRegionBegin([12 x i8]* @p_str17)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:22]   --->   Operation 48 'specregionbegin' 'tmp_s' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 49 [1/1] (0.00ns)   --->   "call void (...)* @_ssdm_op_SpecPipeline(i32 -1, i32 1, i32 1, i32 0, [1 x i8]* @p_str1) nounwind" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:23]   --->   Operation 49 'specpipeline' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 50 [1/1] (0.00ns)   --->   "%newIndex8 = zext i8 %newIndex to i64" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:22]   --->   Operation 50 'zext' 'newIndex8' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 51 [1/1] (0.00ns)   --->   "%data_local_0_addr = getelementptr [225 x i64]* %data_local_0, i64 0, i64 %newIndex8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 51 'getelementptr' 'data_local_0_addr' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 52 [1/1] (0.00ns)   --->   "%data_local_1_addr = getelementptr [225 x i64]* %data_local_1, i64 0, i64 %newIndex8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 52 'getelementptr' 'data_local_1_addr' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 53 [1/1] (0.00ns)   --->   "%data_local_2_addr = getelementptr [225 x i64]* %data_local_2, i64 0, i64 %newIndex8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 53 'getelementptr' 'data_local_2_addr' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 54 [1/1] (0.00ns)   --->   "%data_local_3_addr = getelementptr [225 x i64]* %data_local_3, i64 0, i64 %newIndex8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 54 'getelementptr' 'data_local_3_addr' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 55 [1/1] (0.00ns)   --->   "%data_local_4_addr = getelementptr [225 x i64]* %data_local_4, i64 0, i64 %newIndex8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 55 'getelementptr' 'data_local_4_addr' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 56 [1/1] (0.00ns)   --->   "%data_local_5_addr = getelementptr [225 x i64]* %data_local_5, i64 0, i64 %newIndex8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 56 'getelementptr' 'data_local_5_addr' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 57 [1/1] (0.00ns)   --->   "%data_local_6_addr = getelementptr [225 x i64]* %data_local_6, i64 0, i64 %newIndex8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 57 'getelementptr' 'data_local_6_addr' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 58 [1/1] (0.00ns)   --->   "%data_local_7_addr = getelementptr [225 x i64]* %data_local_7, i64 0, i64 %newIndex8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 58 'getelementptr' 'data_local_7_addr' <Predicate = true> <Delay = 0.00>
+ST_11 : Operation 59 [1/1] (1.15ns)   --->   "store i64 %data_dram_addr_read, i64* %data_local_6_addr, align 8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 59 'store' <Predicate = (tmp == 6)> <Delay = 1.15> <Core = "RAM">   --->   Core 37 'RAM' <Latency = 1> <II = 1> <Delay = 1.15> <Storage> <Opcode : 'load' 'store'> <Ports = 2> <Width = 64> <Depth = 225> <RAM>
+ST_11 : Operation 60 [1/1] (1.15ns)   --->   "store i64 %data_dram_addr_read, i64* %data_local_5_addr, align 8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 60 'store' <Predicate = (tmp == 5)> <Delay = 1.15> <Core = "RAM">   --->   Core 37 'RAM' <Latency = 1> <II = 1> <Delay = 1.15> <Storage> <Opcode : 'load' 'store'> <Ports = 2> <Width = 64> <Depth = 225> <RAM>
+ST_11 : Operation 61 [1/1] (1.15ns)   --->   "store i64 %data_dram_addr_read, i64* %data_local_4_addr, align 8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 61 'store' <Predicate = (tmp == 4)> <Delay = 1.15> <Core = "RAM">   --->   Core 37 'RAM' <Latency = 1> <II = 1> <Delay = 1.15> <Storage> <Opcode : 'load' 'store'> <Ports = 2> <Width = 64> <Depth = 225> <RAM>
+ST_11 : Operation 62 [1/1] (1.15ns)   --->   "store i64 %data_dram_addr_read, i64* %data_local_3_addr, align 8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 62 'store' <Predicate = (tmp == 3)> <Delay = 1.15> <Core = "RAM">   --->   Core 37 'RAM' <Latency = 1> <II = 1> <Delay = 1.15> <Storage> <Opcode : 'load' 'store'> <Ports = 2> <Width = 64> <Depth = 225> <RAM>
+ST_11 : Operation 63 [1/1] (1.15ns)   --->   "store i64 %data_dram_addr_read, i64* %data_local_2_addr, align 8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 63 'store' <Predicate = (tmp == 2)> <Delay = 1.15> <Core = "RAM">   --->   Core 37 'RAM' <Latency = 1> <II = 1> <Delay = 1.15> <Storage> <Opcode : 'load' 'store'> <Ports = 2> <Width = 64> <Depth = 225> <RAM>
+ST_11 : Operation 64 [1/1] (1.15ns)   --->   "store i64 %data_dram_addr_read, i64* %data_local_1_addr, align 8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 64 'store' <Predicate = (tmp == 1)> <Delay = 1.15> <Core = "RAM">   --->   Core 37 'RAM' <Latency = 1> <II = 1> <Delay = 1.15> <Storage> <Opcode : 'load' 'store'> <Ports = 2> <Width = 64> <Depth = 225> <RAM>
+ST_11 : Operation 65 [1/1] (1.15ns)   --->   "store i64 %data_dram_addr_read, i64* %data_local_0_addr, align 8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 65 'store' <Predicate = (tmp == 0)> <Delay = 1.15> <Core = "RAM">   --->   Core 37 'RAM' <Latency = 1> <II = 1> <Delay = 1.15> <Storage> <Opcode : 'load' 'store'> <Ports = 2> <Width = 64> <Depth = 225> <RAM>
+ST_11 : Operation 66 [1/1] (1.15ns)   --->   "store i64 %data_dram_addr_read, i64* %data_local_7_addr, align 8" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24]   --->   Operation 66 'store' <Predicate = (tmp == 7)> <Delay = 1.15> <Core = "RAM">   --->   Core 37 'RAM' <Latency = 1> <II = 1> <Delay = 1.15> <Storage> <Opcode : 'load' 'store'> <Ports = 2> <Width = 64> <Depth = 225> <RAM>
+ST_11 : Operation 67 [1/1] (0.00ns)   --->   "%empty = call i32 (...)* @_ssdm_op_SpecRegionEnd([12 x i8]* @p_str17, i32 %tmp_s)" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:25]   --->   Operation 67 'specregionend' 'empty' <Predicate = (!exitcond)> <Delay = 0.00>
+ST_11 : Operation 68 [1/1] (0.00ns)   --->   "br label %1" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:22]   --->   Operation 68 'br' <Predicate = (!exitcond)> <Delay = 0.00>
+
+State 12 <SV = 9> <Delay = 0.00>
+ST_12 : Operation 69 [1/1] (0.00ns)   --->   "ret void" [/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:26]   --->   Operation 69 'ret' <Predicate = true> <Delay = 0.00>
+
+
+============================================================
++ Verbose Summary: Timing violations
+============================================================
+Target clock period: 4ns, clock uncertainty: 1.08ns.
+
+ <State 1>: 1.11ns
+The critical path consists of the following:
+	wire read on port 'data_dram_offset1' [14]  (0 ns)
+	'add' operation ('sum2') [19]  (1.11 ns)
+
+ <State 2>: 2.92ns
+The critical path consists of the following:
+	wire read on port 'num_elem' [13]  (0 ns)
+	bus request on port 'data_dram' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24) [23]  (2.92 ns)
+
+ <State 3>: 2.92ns
+The critical path consists of the following:
+	bus request on port 'data_dram' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24) [23]  (2.92 ns)
+
+ <State 4>: 2.92ns
+The critical path consists of the following:
+	bus request on port 'data_dram' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24) [23]  (2.92 ns)
+
+ <State 5>: 2.92ns
+The critical path consists of the following:
+	bus request on port 'data_dram' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24) [23]  (2.92 ns)
+
+ <State 6>: 2.92ns
+The critical path consists of the following:
+	bus request on port 'data_dram' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24) [23]  (2.92 ns)
+
+ <State 7>: 2.92ns
+The critical path consists of the following:
+	bus request on port 'data_dram' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24) [23]  (2.92 ns)
+
+ <State 8>: 2.92ns
+The critical path consists of the following:
+	bus request on port 'data_dram' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24) [23]  (2.92 ns)
+
+ <State 9>: 0.739ns
+The critical path consists of the following:
+	'icmp' operation ('exitcond', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:22) [28]  (0.617 ns)
+	blocking operation 0.122 ns on control path)
+
+ <State 10>: 2.92ns
+The critical path consists of the following:
+	bus read on port 'data_dram' (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24) [34]  (2.92 ns)
+
+ <State 11>: 1.16ns
+The critical path consists of the following:
+	'getelementptr' operation ('data_local_6_addr', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24) [44]  (0 ns)
+	'store' operation (/home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24) of variable 'data_dram_addr_read', /home/centos/src/project_data/aws-fpga/SDAccel/examples/xilinx_2018.2/getting_started/cs-259-18f/hw2/digitrec.cpp:24 on array 'data_local_6' [48]  (1.16 ns)
+
+ <State 12>: 0ns
+The critical path consists of the following:
+
+
+============================================================
++ Verbose Summary: Binding
+============================================================
+N/A
+* FSMD analyzer results:
+  - Output states:
+ - Input state : 
+  - Chain level:
+	State 1
+	State 2
+	State 3
+	State 4
+	State 5
+	State 6
+	State 7
+	State 8
+	State 9
+	State 10
+	State 11
+	State 12
+
+
+============================================================
++ Verbose Summary: Datapath Resource usage 
+============================================================
+N/A

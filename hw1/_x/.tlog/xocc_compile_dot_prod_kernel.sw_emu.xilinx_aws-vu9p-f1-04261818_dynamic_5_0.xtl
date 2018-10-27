@@ -1,0 +1,144 @@
+<ENTRY>
+{
+    "EntryID": "1",
+    "Type": "CmdStep",
+    "DateTimestamp": "2018-Oct-13 22:34:32.118000",
+    "TimestampMillis": "81272118",
+    "Payload": {
+        "CmdStepID": "70051835-bf44-4fa8-9c7b-e890a0b23822",
+        "Command": "xocc",
+        "LogFile": "$LOGDIR\/..\/dot_prod_kernel.sw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/dot_prod_kernel.sw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.steps.log",
+        "CommandLine": "\/opt\/Xilinx\/SDx\/2018.2.op2258646\/bin\/unwrapped\/lnx64.o\/xocc  --xp \"misc:report=type report_timing_summary name impl_report_timing_summary_route_design_summary steps {route_design} runs {impl_1} options {-max_paths 10}\" --xp param:compiler.enableRunInBitstreamGeneration=1 --xp \"vivado_prop:run.__KERNEL__.{STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS}={-directive sdx_optimization_effort_high}\" -c --xp param:compiler.preserveHlsOutput=1 --xp param:compiler.generateExtraRunData=true -s -k dot_prod_kernel -o xclbin\/dot_prod_kernel.sw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xo -t sw_emu --platform \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/aws_platform\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm .\/src\/dot_prod_kernel.cpp --xp param:compiler.useHlsGpp=1 ",
+        "OptionArgs": [
+            "-c",
+            "--xp",
+            "param:compiler.preserveHlsOutput=1",
+            "--xp",
+            "param:compiler.generateExtraRunData=true",
+            "-s",
+            "-k",
+            "dot_prod_kernel",
+            "-o",
+            "xclbin\/dot_prod_kernel.sw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xo",
+            "-t",
+            "sw_emu",
+            "--platform",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/aws_platform\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm",
+            ".\/src\/dot_prod_kernel.cpp",
+            "--xp",
+            "param:compiler.useHlsGpp=1"
+        ]
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "2",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:34:32.118000",
+    "TimestampMillis": "81272118",
+    "Payload": {
+        "CmdStepID": "70051835-bf44-4fa8-9c7b-e890a0b23822",
+        "Status": "Start"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "3",
+    "Type": "FlowMetaData",
+    "DateTimestamp": "2018-Oct-13 22:34:41.617000",
+    "TimestampMillis": "81281617",
+    "Payload": {
+        "HardwarePlatform": "xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xpfm",
+        "HardwareDSA": "xilinx_aws-vu9p-f1-04261818_dynamic_5_0.dsa",
+        "PlatformDirectory": "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/aws_platform\/xilinx_aws-vu9p-f1-04261818_dynamic_5_0",
+        "Runtime": "OpenCL",
+        "SystemConfiguration": "Linux",
+        "BinaryContainer": "",
+        "BuildFlow": "COMPILE",
+        "Target": "SW_EMU",
+        "Kernels": [
+            {
+                "KernelName": "dot_prod_kernel",
+                "KernelObj": "$LOGDIR\/..\/..\/xclbin\/dot_prod_kernel.sw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0.xo",
+                "KernelSrcs": [
+                    "$LOGDIR\/..\/..\/src\/dot_prod_kernel.cpp"
+                ]
+            }
+        ]
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "4",
+    "Type": "SubCmdStep",
+    "DateTimestamp": "2018-Oct-13 22:34:41.621000",
+    "TimestampMillis": "81281621",
+    "Payload": {
+        "CmdStepID": "8cb7c132-20a2-4d69-8926-e8345a4a0a3c",
+        "Command": "vivado_hls",
+        "LogFile": "$LOGDIR\/..\/dot_prod_kernel.sw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/dot_prod_kernel\/vivado_hls.log",
+        "TransactionLogFile": "",
+        "CommandLine": "vivado_hls -f \/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/dot_prod_kernel.sw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/dot_prod_kernel\/dot_prod_kernel.tcl -messageDb vivado_hls.pb",
+        "OptionArgs": [
+            "vivado_hls",
+            "-f",
+            "\/home\/centos\/src\/project_data\/aws-fpga\/SDAccel\/examples\/xilinx_2018.2\/getting_started\/cs-259-18f\/hw1\/_x\/dot_prod_kernel.sw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/dot_prod_kernel\/dot_prod_kernel.tcl",
+            "-messageDb",
+            "vivado_hls.pb"
+        ]
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "5",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:34:41.621000",
+    "TimestampMillis": "81281621",
+    "Payload": {
+        "CmdStepID": "8cb7c132-20a2-4d69-8926-e8345a4a0a3c",
+        "Status": "Start"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "6",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:34:57.142000",
+    "TimestampMillis": "81297142",
+    "Payload": {
+        "CmdStepID": "8cb7c132-20a2-4d69-8926-e8345a4a0a3c",
+        "Status": "Passed"
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "7",
+    "Type": "Report",
+    "DateTimestamp": "2018-Oct-13 22:34:57.174000",
+    "TimestampMillis": "81297174",
+    "Payload": {
+        "File": "$LOGDIR\/..\/reports\/dot_prod_kernel.sw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0\/xocc_compile_dot_prod_kernel.sw_emu.xilinx_aws-vu9p-f1-04261818_dynamic_5_0_guidance.html",
+        "Type": "HTML",
+        "ReportType": "GLOBAL_RULECHECK_GUIDANCE",
+        "KernelName": ""
+    }
+}
+</ENTRY>
+<ENTRY>
+{
+    "EntryID": "8",
+    "Type": "Status",
+    "DateTimestamp": "2018-Oct-13 22:34:57.196000",
+    "TimestampMillis": "81297196",
+    "Payload": {
+        "CmdStepID": "70051835-bf44-4fa8-9c7b-e890a0b23822",
+        "Status": "Passed"
+    }
+}
+</ENTRY>
