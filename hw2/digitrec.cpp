@@ -5,13 +5,11 @@
 
 using namespace std;
 
-// const int burstLength = 256; // 1800 is not a power of 2
 const int burstLength = 1800; // 1800 is not a power of 2
 const int numImages = 1;
 const int burstSize = burstLength*numImages;
 const int num_chunks = 8; // current unroll factor?
 const int num_elements = 18000;
-const int double_buf_pipe = 2;
 
 template <typename T>
 inline T Min(const T& a, const T& b) { return a < b ? a : b; }
@@ -38,6 +36,7 @@ void store(bool enable, const T* data_local, T* data_dram, int num_elem){
     }
   }
 }
+
 template <typename T>
 inline void print(const T a, int num_elem){
   for(int i=0; i< num_elem; ++i){
@@ -47,24 +46,41 @@ inline void print(const T a, int num_elem){
 
 extern "C" {
 
-// update knn set
-void update(unsigned long* dis, unsigned char* knn_mat) {
+// not sure what it is doing here
+void init_knn_mat(bool enable, unsigned char* a, int num_elems) {
+#pragma HLS inline off
+  // Initialize the knn set
+if(enable){
+  init:
+  for (int y = 0; y < num_elems; ++y) {
+    a[y] = (unsigned char)50;
+  }
+}
+}
 
+// TODO: local_num_elements is actually not required in this implementation
+// update knn set
+void update(unsigned long* dis, unsigned char* local_knn_mat, int local_num_elements) {
+
+  init_knn_mat(true, local_knn_mat, 3*numImages);
+// cout << "COMES TO UPDATE KNN MAT\n";
 // I can do tiling here
 update:
-  for (int y3 = 0; y3 < burstLength; ++y3) { // cannot flatten this or pipeline this--seems reasonable
+for(int x3 = 0; x3 < numImages; x3++) {
+  for (int y3 = 0; y3 < local_num_elements; ++y3) { // cannot flatten this or pipeline this--seems reasonable
     #pragma HLS loop_tripcount min = 0 max = burstLength
     #pragma HLS PIPELINE
     unsigned long max_id = 0;
     for (int i1 = 0; i1 < 3; ++i1) {
-      if (knn_mat[max_id] < knn_mat[i1]) {
+      if (local_knn_mat[max_id + (x3*3)] < local_knn_mat[i1] + (x3*3)) {
         max_id = i1;
       }
     }
-    if (dis[y3] < knn_mat[max_id]) {
-      knn_mat[max_id] = dis[y3];
+    if (dis[y3 + (x3*local_num_elements)] < local_knn_mat[max_id + (x3*3)]) {
+     local_knn_mat[max_id + (x3*3)] = dis[y3 + (x3*local_num_elements)];
     }
   }
+}
 // print(knn_mat, 3);
 }
 
@@ -72,7 +88,7 @@ update:
 
 // see this const issue
 // TODO: split it later according to the parallelization strategy
-void compute(bool enable, unsigned long test_image, unsigned long* train_images, unsigned char* knn_mat, int local_num_elements){
+void compute(bool enable, unsigned long test_image, unsigned long* train_images, unsigned char* local_knn_mat, int local_num_elements){
   #pragma HLS inline off
   // cout << "CAME TO COMPUTE, SHOULD BE 10 TIMES\n"; // see how can i reduce number of images
   if(enable){
@@ -108,22 +124,12 @@ void compute(bool enable, unsigned long test_image, unsigned long* train_images,
       }
     }
 // print(dis, local_num_elements);
-    update(dis, knn_mat); // pass the size here
+    update(dis,local_knn_mat, local_num_elements); // pass the size here
 }
 
 }
 
-// not sure what it is doing here
-void init_knn_mat(bool enable, unsigned char* a, int num_elems) {
-#pragma HLS inline off
-  // Initialize the knn set
-if(enable){
-  init:
-  for (int y = 0; y < num_elems; ++y) {
-    a[y] = (unsigned char)50;
-  }
-}
-}
+
 
 void digitrec_kernel(
     unsigned long test_image,
@@ -140,9 +146,9 @@ void digitrec_kernel(
   unsigned long local_train_images_0[burstSize];
   unsigned long local_train_images_1[burstSize];
   unsigned long local_train_images_2[burstSize];
-  unsigned char local_knn_mat_0[3]; // size of this is 30 (updated after each image)
-  unsigned char local_knn_mat_1[3]; // size of this is 30 (updated after each image)
-  unsigned char local_knn_mat_2[3]; // size of this is 30 (updated after each image)
+  unsigned char local_knn_mat_0[3*numImages]; 
+  unsigned char local_knn_mat_1[3*numImages]; 
+  unsigned char local_knn_mat_2[3*numImages]; 
   unsigned long local_test_image = test_image;
 
 #pragma HLS ARRAY_PARTITION variable=local_train_images_0 cyclic factor=num_chunks dim=1
@@ -160,7 +166,8 @@ void digitrec_kernel(
 // this is called 180 times for all images
 outer_loop:
 // partitioning across all training sets (find 3 min dist from this image set)
-  for(int i=0; i<num_elements+(2*burstSize); i+=burstSize, train_images+=burstSize, knn_mat+=3){
+  for(int i=0; i<num_elements+(2*burstSize); i+=burstSize, train_images+=burstSize) { 
+//  , knn_mat+=(3*numImages)){
 #pragma HLS loop_tripcount min = kMinTripCount max = kMaxTripCount
     const int local_num_elements = Min(num_elements + (2*burstSize) - i, burstSize);
 
@@ -168,22 +175,25 @@ outer_loop:
     bool cond2 = (i > 0) && (i < (num_elements+burstSize));
     bool cond3 = (i > burstSize);
 
-   if(((i/burstSize) % double_buf_pipe)==0) {
+   if(((i/burstSize) % 3)==0) {
       load(cond1, train_images, local_train_images_0, local_num_elements);
-      init_knn_mat(cond1, local_knn_mat_0, 3);
-      compute(cond2, local_test_image, local_train_images_1, local_knn_mat_1, local_num_elements);
-      store(cond3, local_knn_mat_2, knn_mat, 3); // store
-    } else if(((i/burstSize) % double_buf_pipe)==1) {
-      load(cond1, train_images, local_train_images_1, local_num_elements);
-      init_knn_mat(cond1, local_knn_mat_1, 3);
       compute(cond2, local_test_image, local_train_images_2, local_knn_mat_2, local_num_elements);
-      store(cond3, local_knn_mat_0, knn_mat, 3); // store
+      store(cond3, local_knn_mat_1, knn_mat, 3*numImages);
+    } else if(((i/burstSize) % 3)==1) {
+      load(cond1, train_images, local_train_images_1, local_num_elements);
+      compute(cond2, local_test_image, local_train_images_0, local_knn_mat_0, local_num_elements);
+      store(cond3, local_knn_mat_2, knn_mat, 3*numImages); 
     } else {
       load(cond1, train_images, local_train_images_2, local_num_elements);
-      init_knn_mat(cond1, local_knn_mat_2, 3);
-      compute(cond2, local_test_image, local_train_images_0, local_knn_mat_0, local_num_elements);
-      store(cond3, local_knn_mat_1, knn_mat, 3); // store
+      compute(cond2, local_test_image, local_train_images_1, local_knn_mat_1, local_num_elements);
+      store(cond3, local_knn_mat_0, knn_mat, 3*numImages);
     }
+   
+    if(cond3) {
+      knn_mat += (3*numImages);
+    }
+
+
   }
 }
 
