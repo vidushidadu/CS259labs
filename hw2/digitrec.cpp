@@ -11,7 +11,7 @@ const int numImages = 1;
 const int burstSize = burstLength*numImages;
 const int num_chunks = 8; // current unroll factor?
 const int num_elements = 18000;
-const int double_buf_pipe = 3;
+const int double_buf_pipe = 2;
 
 template <typename T>
 inline T Min(const T& a, const T& b) { return a < b ? a : b; }
@@ -29,6 +29,16 @@ void load(bool enable, const T* data_dram, T* data_local, int num_elem){
 }
 
 template <typename T>
+void store(bool enable, const T* data_local, T* data_dram, int num_elem){
+#pragma HLS inline off
+  if(enable){
+    for(int i=0; i<num_elem; ++i){
+      #pragma HLS pipeline
+      data_dram[i]=data_local[i];
+    }
+  }
+}
+template <typename T>
 inline void print(const T a, int num_elem){
   for(int i=0; i< num_elem; ++i){
     cout << a[i] << endl;
@@ -38,8 +48,9 @@ inline void print(const T a, int num_elem){
 extern "C" {
 
 // update knn set
-void update(unsigned long* temp, unsigned char* knn_mat) {
+void update(unsigned long* dis, unsigned char* knn_mat) {
 
+// I can do tiling here
 update:
   for (int y3 = 0; y3 < burstLength; ++y3) { // cannot flatten this or pipeline this--seems reasonable
     #pragma HLS loop_tripcount min = 0 max = burstLength
@@ -50,8 +61,8 @@ update:
         max_id = i1;
       }
     }
-    if (temp[y3] < knn_mat[max_id]) {
-      knn_mat[max_id] = temp[y3];
+    if (dis[y3] < knn_mat[max_id]) {
+      knn_mat[max_id] = dis[y3];
     }
   }
 // print(knn_mat, 3);
@@ -146,26 +157,32 @@ void digitrec_kernel(
   const int kMaxTripCount = kMinTripCount + num_elements/burstSize;
 
 // the outer loop is not a perfect loop because there is nontrivial logic before entering the inner loop.
+// this is called 180 times for all images
 outer_loop:
-  for(int i=0; i<num_elements+(double_buf_pipe*burstSize); i+=burstSize, train_images+=burstSize, knn_mat+=3){
+// partitioning across all training sets (find 3 min dist from this image set)
+  for(int i=0; i<num_elements+(2*burstSize); i+=burstSize, train_images+=burstSize, knn_mat+=3){
 #pragma HLS loop_tripcount min = kMinTripCount max = kMaxTripCount
-    const int local_num_elements = Min(num_elements + (double_buf_pipe*burstSize) - i, burstSize);
+    const int local_num_elements = Min(num_elements + (2*burstSize) - i, burstSize);
+
+    bool cond1 = i < num_elements;
+    bool cond2 = (i > 0) && (i < (num_elements+burstSize));
+    bool cond3 = (i > burstSize);
 
    if(((i/burstSize) % double_buf_pipe)==0) {
-      load(i < num_elements, train_images, local_train_images_0, local_num_elements);
-      init_knn_mat(i < num_elements, local_knn_mat_0, 3);
-      compute(i > 0, local_test_image, local_train_images_1, local_knn_mat_1, local_num_elements);
-      load(i > -burstSize, local_knn_mat_2, knn_mat, 3); // store
+      load(cond1, train_images, local_train_images_0, local_num_elements);
+      init_knn_mat(cond1, local_knn_mat_0, 3);
+      compute(cond2, local_test_image, local_train_images_1, local_knn_mat_1, local_num_elements);
+      store(cond3, local_knn_mat_2, knn_mat, 3); // store
     } else if(((i/burstSize) % double_buf_pipe)==1) {
-      load(i < num_elements, train_images, local_train_images_1, local_num_elements);
-      init_knn_mat(i < num_elements, local_knn_mat_1, 3);
-      compute(i > 0, local_test_image, local_train_images_2, local_knn_mat_2, local_num_elements);
-      load(i > -burstSize, local_knn_mat_0, knn_mat, 3); // store
+      load(cond1, train_images, local_train_images_1, local_num_elements);
+      init_knn_mat(cond1, local_knn_mat_1, 3);
+      compute(cond2, local_test_image, local_train_images_2, local_knn_mat_2, local_num_elements);
+      store(cond3, local_knn_mat_0, knn_mat, 3); // store
     } else {
-      load(i < num_elements, train_images, local_train_images_2, local_num_elements);
-      init_knn_mat(i < num_elements, local_knn_mat_2, 3);
-      compute(i > 0, local_test_image, local_train_images_0, local_knn_mat_0, local_num_elements);
-      load(i > -burstSize, local_knn_mat_1, knn_mat, 3); // store
+      load(cond1, train_images, local_train_images_2, local_num_elements);
+      init_knn_mat(cond1, local_knn_mat_2, 3);
+      compute(cond2, local_test_image, local_train_images_0, local_knn_mat_0, local_num_elements);
+      store(cond3, local_knn_mat_1, knn_mat, 3); // store
     }
   }
 }
