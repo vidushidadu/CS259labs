@@ -25,6 +25,18 @@ inline To Reinterpret(const From& val){
 
 //  These data requests might be further partitioned to multiple requests during RTL generation, based on max_read_burst_length or max_write_burst_length settings.
 template <typename T>
+void load(bool enable, const T* data_dram, T* data_local, int num_elem){
+#pragma HLS inline off
+  if(enable){
+    for(int i=0; i<num_elem; ++i){
+      #pragma HLS pipeline
+      data_local[i]=data_dram[i];
+    }
+  }
+}
+
+/*
+template <typename T>
 void load(bool enable, const ap_uint<burstWidth>* data_dram, T* data_local, int num_elem){
 #pragma HLS inline off
   if(enable){
@@ -38,7 +50,7 @@ void load(bool enable, const ap_uint<burstWidth>* data_dram, T* data_local, int 
     }
   }
 }
-
+*/
 template <typename T>
 void store(bool enable, const T* data_local, T* data_dram, int num_elem){
 #pragma HLS inline off
@@ -57,6 +69,17 @@ inline void print(const T a, int num_elem){
   }
 }
 
+void init_knn_mat(bool enable, unsigned char* a, int num_elems) {
+#pragma HLS inline off
+  // Initialize the knn set
+  if(enable){
+    init:
+    for (int y = 0; y < num_elems; ++y) {
+      a[y] = (unsigned char)50;
+    }
+  }
+}
+
 // hope this helps!
 void write_min(unsigned char* array, unsigned long val){
   #pragma HLS inline off
@@ -71,42 +94,30 @@ void write_min(unsigned char* array, unsigned long val){
   }
 }
 
-template<int n>
-void Reduce(unsigned char* array, unsigned char* knn_mat) {
-#pragma HLS inline
-  // not needed for this implementation
-  // init_knn_mat(true, knn_mat, 3);
-update:
-  for (int i = 0; i < n; ++i) { // cannot flatten this or pipeline this--seems reasonable
-    #pragma HLS PIPELINE
+// TODO: copy in it's own first element so that I don't need to duplicate and I can easily create reduction tree
+// Reduce k*3 to m*3 sets *finally we want 1*3 set
+template<int start_size, int end_size>
+void Reduce(unsigned char* array) {
+  #pragma HLS inline
+  unsigned char knn_mat[3*end_size];
+  init_knn_mat(true, knn_mat, 3*end_size);
+  reduce:
+  for (int i = 0; i < start_size; ++i) { // cannot flatten this or pipeline this--seems reasonable
     for (int j = 0; j < 3; ++j) {
+      #pragma HLS PIPELINE
       write_min(knn_mat, array[j + (i*3)]);
     }
   }
+  store(true, knn_mat, array, 3*end_size);
 }
 
 extern "C" {
 
-// not sure what it is doing here
-void init_knn_mat(bool enable, unsigned char* a, int num_elems) {
-#pragma HLS inline off
-  // Initialize the knn set
-  if(enable){
-    init:
-    for (int y = 0; y < num_elems; ++y) {
-      a[y] = (unsigned char)50;
-    }
-  }
-}
-
-// TODO: local_num_elements is actually not required in this implementation
-// update knn set
-// I can do tiling here
 void update(unsigned long* dis, unsigned char* knn_mat) {
   #pragma HLS inline off
   // tiling means we work on each tile at a time not in parallel?
   unsigned char local_knn_mat[tileSize*3];
-  init_knn_mat(true, knn_mat, 3);
+  // init_knn_mat(true, knn_mat, 3);
   init_knn_mat(true, local_knn_mat, 3*tileSize);
   
   update:
@@ -114,16 +125,40 @@ void update(unsigned long* dis, unsigned char* knn_mat) {
     #pragma HLS PIPELINE
     for(int j=0; j < tileSize; ++j){
       #pragma HLS UNROLL factor=tileSize
-      // write_min(array, dis);
-      write_min(local_knn_mat[j*3], dis[i+(j*burstSize/tileSize)]);
+      write_min(&local_knn_mat[j*3], dis[i+(j*burstSize/tileSize)]);
     }
   }
-  Reduce<tileSize>(local_knn_mat, knn_mat);
-  // store(true, local_knn_mat, knn_mat, 3);
+  // Reduce<tileSize,1>(local_knn_mat);
+  // Reduction tree
+  reduce:
+  Reduce<8,4>(local_knn_mat);
+  Reduce<4,2>(local_knn_mat);
+  Reduce<2,1>(local_knn_mat);
+  store(true, local_knn_mat, knn_mat, 3);
 }
 
-// see this const issue
-// TODO: split it later according to the parallelization strategy
+/*
+void update(unsigned long* dis, unsigned char* local_knn_mat) {
+#pragma HLS inline off
+  init_knn_mat(true, local_knn_mat, 3);
+// I can do tiling here
+update:
+  for (int y3 = 0; y3 < burstLength; ++y3) { // cannot flatten this or pipeline this--seems reasonable
+// write_min(&local_knn_mat[0], dis[y3]);
+    unsigned long max_id = 0;
+    for (int i1 = 0; i1 < 3; ++i1) {
+      if (local_knn_mat[max_id] < local_knn_mat[i1]) {
+        max_id = i1;
+      }
+    }
+    if (dis[y3] < local_knn_mat[max_id]) {
+     local_knn_mat[max_id] = dis[y3];
+    }
+  }
+}
+*/
+
+
 void compute(bool enable, unsigned long test_image, unsigned long* train_images, unsigned char* local_knn_mat){
   #pragma HLS inline off
   if(enable){
@@ -155,17 +190,16 @@ void compute(bool enable, unsigned long test_image, unsigned long* train_images,
           dis[x2] = dis[x2] + ((local_temp[x2] & (1L << i)) >> i);
       }
     }
-// print(dis, local_num_elements);
-    // init_knn_mat(true, local_knn_mat, 3);
     update(dis,local_knn_mat); // pass the size here
 }
 
 }
 
+// ap_uint<burstWidth>* train_images,
 // this is called 180 times for all test images
 void digitrec_kernel(
     unsigned long test_image,
-    unsigned ap_uint<burstWidth>* train_images,
+    unsigned long* train_images,
     unsigned char* knn_mat) {
 #pragma HLS interface m_axi port=train_images offset=slave bundle=gmem
 #pragma HLS interface m_axi port=knn_mat offset=slave bundle=gmem2
@@ -198,7 +232,8 @@ void digitrec_kernel(
 int knn_mat_index = 0;
 
 outer_loop:
-  for(int i=0; i<num_elements+(2*burstSize); i+=burstSize, train_images+= (burstSize/(burstWidth/longSize))) {
+  // for(int i=0; i<num_elements+(2*burstSize); i+=burstSize, train_images+= (burstSize/(burstWidth/longSize)))
+  for(int i=0; i<num_elements+(2*burstSize); i+=burstSize, train_images+=burstSize) {
 #pragma HLS loop_tripcount min = kMinTripCount max = kMaxTripCount
 
     bool cond1 = i < num_elements;
