@@ -13,6 +13,7 @@ const int burstWidth = 256; // datawidth size = should be a multiple of 8 (other
 const int num_chunks = 360; // if factor of 1800--can remove conditional check
 const int num_elements = 18000;
 const int longSize = 32; // 4 bytes
+const int tileSize = 8; // should be a multiple of 1800
 
 template <typename T>
 inline T Min(const T& a, const T& b) { return a < b ? a : b; }
@@ -56,39 +57,69 @@ inline void print(const T a, int num_elem){
   }
 }
 
+// hope this helps!
+void write_min(unsigned char* array, unsigned long val){
+  #pragma HLS inline off
+  unsigned long max_id = 0;
+  for (int i1 = 0; i1 < 3; ++i1) {
+    if (array[max_id] < array[i1]) {
+      max_id = i1;
+    }
+  }
+  if (val < array[max_id]) {
+    array[max_id] = val;
+  }
+}
+
+template<int n>
+void Reduce(unsigned char* array, unsigned char* knn_mat) {
+#pragma HLS inline
+  // not needed for this implementation
+  // init_knn_mat(true, knn_mat, 3);
+update:
+  for (int i = 0; i < n; ++i) { // cannot flatten this or pipeline this--seems reasonable
+    #pragma HLS PIPELINE
+    for (int j = 0; j < 3; ++j) {
+      write_min(knn_mat, array[j + (i*3)]);
+    }
+  }
+}
+
 extern "C" {
 
 // not sure what it is doing here
 void init_knn_mat(bool enable, unsigned char* a, int num_elems) {
 #pragma HLS inline off
   // Initialize the knn set
-if(enable){
-  init:
-  for (int y = 0; y < num_elems; ++y) {
-    a[y] = (unsigned char)50;
+  if(enable){
+    init:
+    for (int y = 0; y < num_elems; ++y) {
+      a[y] = (unsigned char)50;
+    }
   }
-}
 }
 
 // TODO: local_num_elements is actually not required in this implementation
 // update knn set
 // I can do tiling here
 void update(unsigned long* dis, unsigned char* knn_mat) {
-#pragma HLS inline off
+  #pragma HLS inline off
+  // tiling means we work on each tile at a time not in parallel?
+  unsigned char local_knn_mat[tileSize*3];
   init_knn_mat(true, knn_mat, 3);
-update:
-  for (int y3 = 0; y3 < burstLength; ++y3) { // cannot flatten this or pipeline this--seems reasonable
+  init_knn_mat(true, local_knn_mat, 3*tileSize);
+  
+  update:
+  for(int i=0; i < (burstSize/tileSize); ++i){
     #pragma HLS PIPELINE
-    unsigned long max_id = 0;
-    for (int i1 = 0; i1 < 3; ++i1) {
-      if (knn_mat[max_id] < knn_mat[i1]) {
-        max_id = i1;
-      }
-    }
-    if (dis[y3] < knn_mat[max_id]) {
-      knn_mat[max_id] = dis[y3];
+    for(int j=0; j < tileSize; ++j){
+      #pragma HLS UNROLL factor=tileSize
+      // write_min(array, dis);
+      write_min(local_knn_mat[j*3], dis[i+(j*burstSize/tileSize)]);
     }
   }
+  Reduce<tileSize>(local_knn_mat, knn_mat);
+  // store(true, local_knn_mat, knn_mat, 3);
 }
 
 // see this const issue
@@ -125,6 +156,7 @@ void compute(bool enable, unsigned long test_image, unsigned long* train_images,
       }
     }
 // print(dis, local_num_elements);
+    // init_knn_mat(true, local_knn_mat, 3);
     update(dis,local_knn_mat); // pass the size here
 }
 
