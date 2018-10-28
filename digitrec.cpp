@@ -6,12 +6,14 @@
 
 using namespace std;
 
-const int burstLength = 1800; // 1800 is not a power of 2
+// const int burstLength = 1800; // 1800 is not a power of 2
+const int burstLength = 360; // 1800 is not a power of 2
 const int numImages = 1;
 const int burstSize = burstLength*numImages;
 const int burstWidth = 256; // datawidth size = should be a multiple of 8 (otherwise other issues)
 // const int num_chunks = 360; // if factor of 1800--can remove conditional check
-const int num_chunks = 8; // if factor of 1800--can remove conditional check
+// const int num_chunks = 8; // if factor of 1800--can remove conditional check
+const int num_chunks = 180; 
 const int num_elements = 18000;
 const int longSize = 32; // 4 bytes
 const int tileSize = 8; // should be a multiple of 1800
