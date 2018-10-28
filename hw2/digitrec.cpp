@@ -6,11 +6,14 @@
 
 using namespace std;
 
-const int burstLength = 1800; // 1800 is not a power of 2
+// const int burstLength = 1800; // 1800 is not a power of 2
+const int burstLength = 360; // 1800 is not a power of 2
 const int numImages = 1;
 const int burstSize = burstLength*numImages;
 const int burstWidth = 256; // datawidth size = should be a multiple of 8 (otherwise other issues)
-const int num_chunks = 360; // if factor of 1800--can remove conditional check
+// const int num_chunks = 360; // if factor of 1800--can remove conditional check
+// const int num_chunks = 8; // if factor of 1800--can remove conditional check
+const int num_chunks = 180;
 const int num_elements = 18000;
 const int longSize = 32; // 4 bytes
 const int tileSize = 8; // should be a multiple of 1800
@@ -23,7 +26,6 @@ inline To Reinterpret(const From& val){
   return reinterpret_cast<const To&>(val);
 }
 
-//  These data requests might be further partitioned to multiple requests during RTL generation, based on max_read_burst_length or max_write_burst_length settings.
 template <typename T>
 void load(bool enable, const T* data_dram, T* data_local, int num_elem){
 #pragma HLS inline off
@@ -44,6 +46,7 @@ void load(bool enable, const ap_uint<burstWidth>* data_dram, T* data_local, int 
       #pragma HLS pipeline
       ap_uint<burstWidth> tmp = data_dram[i];
       for(int j=0; j < burstWidth/longSize; ++j){
+        #pragma HLS UNROLL
         data_local[i*(burstWidth/longSize)+j] =
         Reinterpret<unsigned long>(static_cast<unsigned>(tmp((j+1)*longSize-1,j*longSize)));
       }
@@ -51,6 +54,7 @@ void load(bool enable, const ap_uint<burstWidth>* data_dram, T* data_local, int 
   }
 }
 */
+
 template <typename T>
 void store(bool enable, const T* data_local, T* data_dram, int num_elem){
 #pragma HLS inline off
@@ -69,9 +73,9 @@ inline void print(const T a, int num_elem){
   }
 }
 
+// Initialize the knn set
 void init_knn_mat(bool enable, unsigned char* a, int num_elems) {
 #pragma HLS inline off
-  // Initialize the knn set
   if(enable){
     init:
     for (int y = 0; y < num_elems; ++y) {
@@ -80,7 +84,6 @@ void init_knn_mat(bool enable, unsigned char* a, int num_elems) {
   }
 }
 
-// hope this helps!
 void write_min(unsigned char* array, unsigned long val){
   #pragma HLS inline off
   unsigned long max_id = 0;
@@ -94,7 +97,6 @@ void write_min(unsigned char* array, unsigned long val){
   }
 }
 
-// TODO: copy in it's own first element so that I don't need to duplicate and I can easily create reduction tree
 // Reduce k*3 to m*3 sets *finally we want 1*3 set
 template<int start_size, int end_size>
 void Reduce(unsigned char* array) {
@@ -115,11 +117,9 @@ extern "C" {
 
 void update(unsigned long* dis, unsigned char* knn_mat) {
   #pragma HLS inline off
-  // tiling means we work on each tile at a time not in parallel?
   unsigned char local_knn_mat[tileSize*3];
-  // init_knn_mat(true, knn_mat, 3);
   init_knn_mat(true, local_knn_mat, 3*tileSize);
-  
+
   update:
   for(int i=0; i < (burstSize/tileSize); ++i){
     #pragma HLS PIPELINE
@@ -137,45 +137,22 @@ void update(unsigned long* dis, unsigned char* knn_mat) {
   store(true, local_knn_mat, knn_mat, 3);
 }
 
-/*
-void update(unsigned long* dis, unsigned char* local_knn_mat) {
-#pragma HLS inline off
-  init_knn_mat(true, local_knn_mat, 3);
-// I can do tiling here
-update:
-  for (int y3 = 0; y3 < burstLength; ++y3) { // cannot flatten this or pipeline this--seems reasonable
-// write_min(&local_knn_mat[0], dis[y3]);
-    unsigned long max_id = 0;
-    for (int i1 = 0; i1 < 3; ++i1) {
-      if (local_knn_mat[max_id] < local_knn_mat[i1]) {
-        max_id = i1;
-      }
-    }
-    if (dis[y3] < local_knn_mat[max_id]) {
-     local_knn_mat[max_id] = dis[y3];
-    }
-  }
-}
-*/
-
-
 void compute(bool enable, unsigned long test_image, unsigned long* train_images, unsigned char* local_knn_mat){
   #pragma HLS inline off
   if(enable){
-    // Compute the difference using XOR
     unsigned long local_temp[burstSize];
+    unsigned long dis[burstSize];
     #pragma HLS ARRAY_PARTITION variable=local_temp cyclic factor=num_chunks dim=1
+    #pragma HLS ARRAY_PARTITION variable=dis cyclic factor=num_chunks dim=1
 
-    diff: // Completely parallel
+    // Compute the difference using XOR
+    diff:
     for (int x1 = 0; x1 < burstSize; ++x1) {
       #pragma HLS UNROLL factor=num_chunks skip_exit_check
       local_temp[x1] = train_images[x1] ^ test_image;
     }
 
-  // Compute the distance
-    unsigned long dis[burstSize];
-    #pragma HLS ARRAY_PARTITION variable=dis cyclic factor=num_chunks dim=1
-
+    // Compute the distance
     dis_init:
     for(int i=0; i<burstSize; ++i){
       #pragma LOOP UNROLL factor=num_chunks skip_exit_check
@@ -190,7 +167,7 @@ void compute(bool enable, unsigned long test_image, unsigned long* train_images,
           dis[x2] = dis[x2] + ((local_temp[x2] & (1L << i)) >> i);
       }
     }
-    update(dis,local_knn_mat); // pass the size here
+    update(dis,local_knn_mat);
 }
 
 }
@@ -208,7 +185,6 @@ void digitrec_kernel(
 #pragma HLS interface s_axilite port=knn_mat bundle=control
 #pragma HLS interface s_axilite port=return bundle=control
 
-  // TODO: try their mapping
   unsigned long local_train_images_0[burstSize];
   unsigned long local_train_images_1[burstSize];
   unsigned long local_train_images_2[burstSize];
@@ -226,8 +202,6 @@ void digitrec_kernel(
 
   const int kMinTripCount = 0;
   const int kMaxTripCount = kMinTripCount + num_elements/burstSize;
-
-// the outer loop is not a perfect loop because there is nontrivial logic before entering the inner loop.
 
 int knn_mat_index = 0;
 
