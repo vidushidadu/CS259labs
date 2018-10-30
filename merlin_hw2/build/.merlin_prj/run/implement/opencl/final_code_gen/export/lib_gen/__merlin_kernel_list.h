@@ -1,1 +1,0 @@
-//vec_add_kernel=__merlinkernel_vec_add_kernel.cpp

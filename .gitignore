@@ -9,3 +9,4 @@ emconfig.json
 helloworld
 host
 xclbin
+build/*
