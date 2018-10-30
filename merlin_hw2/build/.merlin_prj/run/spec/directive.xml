@@ -1,0 +1,15 @@
+
+<directives>
+<reduction_opt>off</reduction_opt>
+<platform_name>/opt/Xilinx/SDx/2017.4.op/platforms/xilinx_aws-vu9p-f1_dynamic_5_0/xilinx_aws-vu9p-f1_dynamic_5_0.xpfm</platform_name>
+<opt_effort>standard</opt_effort>
+<merlincc>on</merlincc>
+<implementation_tool>sdaccel</implementation_tool>
+<clock_period>5ns</clock_period>
+<encrypt>on</encrypt>
+<part_name></part_name>
+<reduction_altera>off</reduction_altera>
+<include_path> -I/home/centos/Examples/vec_add/build -I/home/centos/Examples/vec_add/build/../src/ -I/home/centos/Examples/vec_add/build/../include -I/home/centos/Examples/vec_add/build/./ -I/opt/Falcon/Merlin_Compiler_2.2.5/build/..//mars-gen/lib/merlin</include_path>
+<macro_define> -D MCC_SIM  -D XILINX </macro_define>
+</directives>
+
