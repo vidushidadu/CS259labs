@@ -1,0 +1,124 @@
+************************************************************************************
+ Merlin Compiler (TM) Version 2018.3.dev (1e97ab848.9572)
+ Built Thu Sep 6 20:14:46 2018 +0800
+ Copyright (C) 2015-2018 Falcon Computing Solutions, Inc. All Rights Reserved.
+************************************************************************************
+INFO: [MERCC-1096] Host - 'ip-172-31-16-188.ec2.internal' with linux x86_64-linux-thread-multi
+INFO: [MERCC-1097] User - centos
+INFO: [MERCC-1098] Time - Thu Nov  1 12:28:42 PDT 2018
+INFO: [MERCC-1099] Directory - /home/centos/cs-259-18f/hw2-merlin
+
+INFO: [MERCC-1005] Checking license for Falcon...
+INFO: [MERCC-1007] Feature FALCON_CUSTOM checked out. 
+INFO: [MERCC-1008] Checking Xilinx xocc ...
+INFO: [MERCC-1009] Found Xilinx xocc : /opt/Xilinx/SDx/2017.4.op/bin/xocc
+INFO: [MERCC-1005] Checking license for Xilinx...
+INFO: [MERCC-1007] Feature FALCON_XILINX checked out. 
+INFO: [MERCC-1033] Syntax checking...
+
+
+INFO: [MERCC-1034] Synthesizability checking...
+
+
+
+
+INFO: [MERCC-1035] Interface synthesis...
+
+
+
+WARNING: [LTILE-210] Found in-divisible tiling on loop : for-loop: for(int x = 0;x < 10;++x) {...} (digitrec.cpp:25)
+ in Function: void digitrec_kernel(unsigned long test_image,unsigned long * train_images,unsigned char * knn_mat) {...}
+ which may affect back end flow.
+
+WARNING: [LTILE-208] Loop will be unrolled but without tiling because Factor >= Loop Trip Count: for-loop: for(int x = 0;x < 10;++x) {...} (digitrec.cpp:25)
+ in Function: void digitrec_kernel(unsigned long test_image,unsigned long * train_images,unsigned char * knn_mat) {...}
+
+INFO: [MERCC-1036] Kernel optimization...
+
+INFO: [BURST-101] Memory burst inferred: variable 'train_images' (digitrec.cpp:8) in scope (digitrec.cpp:25)
+  burst buffer size = 144000 bytes
+INFO: [BURST-101] Memory burst inferred: variable 'knn_mat' (digitrec.cpp:9) in scope (digitrec.cpp:9)
+  burst buffer size = 30 bytes
+
+WARNING: [BURST-215] Low bandwidth efficiency of memory burst: variable 'knn_mat' (digitrec.cpp:9) in scope (digitrec.cpp:9).
+  Reason: short burst length = 30 bytes
+
+
+
+INFO: [CGPAR-101] Coarse-grained parallelization applied: loop 'L_1' (digitrec.cpp:25) in function 'digitrec_kernel'
+
+
+WARNING: [WDBUS-203] Suboptimal memory coalescing: variable 'knn_mat' (digitrec.cpp:9)
+  Reason: the lowest dimension size of on-chip buffer is not divisible by 16
+INFO: [WDBUS-101] Memory coalescing inferred: variable 'train_images' (digitrec.cpp:8)
+  interface bitwidth = 512 bits
+
+
+
+INFO: [FGPIP-103] Loop fine-grained pipelining applied: loop 'L_0'
+  (digitrec.cpp:27) 
+
+INFO: [FGPIP-102] Loop fine-grained parallelization applied: loop 'L_0_0'
+ (digitrec.cpp:31) 
+  parallel units:  49
+INFO: [FGPIP-102] Loop fine-grained parallelization applied: loop 'L_0_1'
+ (digitrec.cpp:37) 
+  parallel units:  3
+INFO: [FGPIP-103] Loop fine-grained pipelining applied: loop 'L_0'
+  (digitrec.cpp:17) 
+
+INFO: [FGPIP-102] Loop fine-grained parallelization applied: loop 'L_0_0'
+ (digitrec.cpp:17) 
+  parallel units:  5
+INFO: [FGPIP-102] Loop fine-grained parallelization applied: loop 'L_0_0_0'
+ (digitrec.cpp:18) 
+  parallel units:  3
+INFO: [FGPIP-103] Loop fine-grained pipelining applied: loop 'L_2'
+  (digitrec.cpp:50) 
+
+INFO: [FGPIP-102] Loop fine-grained parallelization applied: loop 'L_2_0'
+ (digitrec.cpp:50) 
+  parallel units:  5
+INFO: [FGPIP-102] Loop fine-grained parallelization applied: loop 'L_2_0_0'
+ (digitrec.cpp:51) 
+  parallel units:  3
+
+INFO: [MERCC-1037] Code generation...
+
+
+INFO: [MERCC-1040] Compilation finished successfully.
+
+
+Total time: 46.21 seconds
+Peak memory usage: 112.50 Mbyte
+
+************************************************************************************
+ Merlin Compiler (TM) Version 2018.3.dev (1e97ab848.9572)
+ Built Thu Sep 6 20:14:46 2018 +0800
+ Copyright (C) 2015-2018 Falcon Computing Solutions, Inc. All Rights Reserved.
+************************************************************************************
+INFO: [MERCC-1096] Host - 'ip-172-31-16-188.ec2.internal' with linux x86_64-linux-thread-multi
+INFO: [MERCC-1097] User - centos
+INFO: [MERCC-1098] Time - Thu Nov  1 12:29:32 PDT 2018
+INFO: [MERCC-1099] Directory - /home/centos/cs-259-18f/hw2-merlin
+
+INFO: [MERCC-1005] Checking license for Falcon...
+INFO: [MERCC-1007] Feature FALCON_CUSTOM checked out. 
+INFO: [MERCC-1008] Checking Xilinx xocc ...
+INFO: [MERCC-1009] Found Xilinx xocc : /opt/Xilinx/SDx/2017.4.op/bin/xocc
+INFO: [MERCC-1005] Checking license for Xilinx...
+INFO: [MERCC-1007] Feature FALCON_XILINX checked out. 
+INFO: [MERCC-1025] High-level design estimating ...
+.
+INFO: [MERCC-1017] Target device: xilinx_aws-vu9p-f1_dynamic_5_0.
+
+INFO: [MERCC-1018] Compiling kernel digitrec_kernel...
+.........................................
+
+INFO: [MERCC-1024] Report generating...
+INFO: [MERCC-1026] Estimation successfully.
+
+
+Total time: 238.56 seconds
+Peak memory usage: 400.34 Mbyte
+
