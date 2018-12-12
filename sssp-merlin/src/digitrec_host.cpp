@@ -3,8 +3,8 @@
 
 using namespace std;
 
-#define E 100 // E: number of edges processed in a bucket in parallel
-#define N 100 // N: hash table size (worst case number of dest edges)
+#define E 1024 // E: number of edges processed in a bucket in parallel
+#define N 1024 // N: hash table size (worst case number of dest edges)
 #define V 200
 
 using std::cout;
@@ -31,8 +31,8 @@ int main(int argc, char **argv) {
   unsigned int *cur_dist = (unsigned int*)malloc(sizeof(unsigned int) * E);
   // fill data
   for(int i=0; i<E; ++i) {
-    dest_id[i] = rand()%10;
-    cur_dist[i] = rand()%100;
+    dest_id[i] = rand()%100;
+    cur_dist[i] = rand()%1000;
   }
 
   // output data structures (hash table with collision)
