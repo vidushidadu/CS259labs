@@ -1,10 +1,11 @@
 #include <iostream>
 #include <string>
 
+using namespace std;
+
 #define E 100 // E: number of edges processed in a bucket in parallel
 #define N 100 // N: hash table size (worst case number of dest edges)
 #define V 200
-
 
 using std::cout;
 using std::endl;
@@ -35,10 +36,12 @@ int main(int argc, char **argv) {
   }
 
   // output data structures (hash table with collision)
-  std::pair<int,int> final_dist[N]; // <dest_id,dist>
+  int final_dist_id[N]; // <dest_id,dist>
+  int final_dist_val[N]; // <dest_id,dist>
 
   for(int i=0; i<N; ++i) {
-    final_dist[i] = std::make_pair(-1,-1);
+    final_dist_id[i] = -1;
+    final_dist_val[i] = -1;
   }
 
 
@@ -58,9 +61,9 @@ int main(int argc, char **argv) {
 
   // Compute
 #ifdef MCC_ACC
-    __merlin_digitrec_kernel(dest_id, cur_dist, final_dist); 
+    __merlin_digitrec_kernel(dest_id, cur_dist, final_dist_id, final_dist_val); 
 #else
-    digitrec_kernel(dest_id, cur_dist, final_dist);
+    digitrec_kernel(dest_id, cur_dist, final_dist_id, final_dist_val);
 #endif
   // cout << "Accuracy: " << 100.0 * ((float)correct / NUM_IMAGES) << "%" << endl;
 
